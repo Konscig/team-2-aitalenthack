@@ -1,0 +1,30 @@
+{
+  "source": "Банк России",
+  "url": "https://www.cbr.ru/currency_base/dynamics/?UniDbQuery.Posted=True&UniDbQuery.mode=1&UniDbQuery.VAL_NM_RQ=R01235&UniDbQuery.From=10.01.2024&UniDbQuery.To=19.01.2024",
+  "http_method": "GET",
+  "soap_action": null,
+  "request_parameters": {
+    "UniDbQuery.Posted": "True",
+    "UniDbQuery.mode": "1",
+    "UniDbQuery.VAL_NM_RQ": "R01235",
+    "UniDbQuery.From": "10.01.2024",
+    "UniDbQuery.To": "19.01.2024"
+  },
+  "requested_at_utc": "2026-09-03T09:28:43.278290+00:00",
+  "received_at_utc": "2026-09-03T09:28:44.005365+00:00",
+  "http_status": 200,
+  "response_headers": {
+    "Server": "ddos-guard",
+    "Connection": "close",
+    "Set-Cookie": "__ddg1_=K2oUNcgXdpY4JSaX4Lde; Domain=.cbr.ru; HttpOnly; Path=/; Expires=Fri, 03-Sep-2027 09:28:43 GMT",
+    "Content-Type": "text/html; charset=utf-8",
+    "Content-Length": "66178",
+    "Date": "Thu, 03 Sep 2026 09:28:43 GMT",
+    "Vary": "Accept-Encoding",
+    "Cache-Control": "private",
+    "X-Frame-Options": "SAMEORIGIN"
+  },
+  "response_bytes": 66178,
+  "sha256": "3f55b46904f874643f42b0001fdab0f0ec01255b6a9ffe70f75ead4d6e944a81",
+  "raw_file": "data/raw/source_discovery/usd_public_page.html"
+}

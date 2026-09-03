@@ -1,0 +1,98 @@
+{
+  "TJS": {
+    "observation_count": 3,
+    "first_date": "2024-01-10T00:00:00+03:00",
+    "last_date": "2024-01-12T00:00:00+03:00",
+    "fields": [
+      "CursDate",
+      "Vcode",
+      "Vnom",
+      "Vcurs",
+      "VunitRate"
+    ]
+  },
+  "UZS": {
+    "observation_count": 3,
+    "first_date": "2024-01-10T00:00:00+03:00",
+    "last_date": "2024-01-12T00:00:00+03:00",
+    "fields": [
+      "CursDate",
+      "Vcode",
+      "Vnom",
+      "Vcurs",
+      "VunitRate"
+    ]
+  },
+  "KGS": {
+    "observation_count": 3,
+    "first_date": "2024-01-10T00:00:00+03:00",
+    "last_date": "2024-01-12T00:00:00+03:00",
+    "fields": [
+      "CursDate",
+      "Vcode",
+      "Vnom",
+      "Vcurs",
+      "VunitRate"
+    ]
+  },
+  "AMD": {
+    "observation_count": 3,
+    "first_date": "2024-01-10T00:00:00+03:00",
+    "last_date": "2024-01-12T00:00:00+03:00",
+    "fields": [
+      "CursDate",
+      "Vcode",
+      "Vnom",
+      "Vcurs",
+      "VunitRate"
+    ]
+  },
+  "KZT": {
+    "observation_count": 3,
+    "first_date": "2024-01-10T00:00:00+03:00",
+    "last_date": "2024-01-12T00:00:00+03:00",
+    "fields": [
+      "CursDate",
+      "Vcode",
+      "Vnom",
+      "Vcurs",
+      "VunitRate"
+    ]
+  },
+  "USD": {
+    "observation_count": 3,
+    "first_date": "2024-01-10T00:00:00+03:00",
+    "last_date": "2024-01-12T00:00:00+03:00",
+    "fields": [
+      "CursDate",
+      "Vcode",
+      "Vnom",
+      "Vcurs",
+      "VunitRate"
+    ]
+  },
+  "EUR": {
+    "observation_count": 3,
+    "first_date": "2024-01-10T00:00:00+03:00",
+    "last_date": "2024-01-12T00:00:00+03:00",
+    "fields": [
+      "CursDate",
+      "Vcode",
+      "Vnom",
+      "Vcurs",
+      "VunitRate"
+    ]
+  },
+  "CNY": {
+    "observation_count": 3,
+    "first_date": "2024-01-10T00:00:00+03:00",
+    "last_date": "2024-01-12T00:00:00+03:00",
+    "fields": [
+      "CursDate",
+      "Vcode",
+      "Vnom",
+      "Vcurs",
+      "VunitRate"
+    ]
+  }
+}

@@ -1,0 +1,52 @@
+2026-09-03T09:45:30Z INFO src.pipeline.download download_start method=GetLatestDateTime attempt=1 parameters={}
+2026-09-03T09:45:31Z INFO src.pipeline.download download_complete method=GetLatestDateTime path=data\raw\cbr\latest_date.response.xml bytes=398
+2026-09-03T09:45:31Z INFO src.pipeline.download download_start method=EnumValutesXML attempt=1 parameters={'Seld': 'false'}
+2026-09-03T09:45:31Z INFO src.pipeline.download download_complete method=EnumValutesXML path=data\raw\cbr\currency_reference.response.xml bytes=60135
+2026-09-03T09:45:31Z INFO src.pipeline.download download_start method=GetCursDynamicXML attempt=1 parameters={'FromDate': '2019-01-01T00:00:00', 'ToDate': '2026-09-03T00:00:00', 'ValutaCode': 'R01670'}
+2026-09-03T09:45:33Z INFO src.pipeline.download download_complete method=GetCursDynamicXML path=data\raw\cbr\2019-01-01_2026-09-03\TJS.response.xml bytes=330636
+2026-09-03T09:45:33Z ERROR src.pipeline.cli RAW INGESTION FAILED: VunitRate != Vcurs/Vnom for TJS on 2019-01-10: 7.1096400000000006 != 71.0964/10
+2026-09-03T09:46:13Z INFO src.pipeline.download cache_hit path=data\raw\cbr\latest_date.response.xml bytes=398
+2026-09-03T09:46:13Z INFO src.pipeline.download cache_hit path=data\raw\cbr\currency_reference.response.xml bytes=60135
+2026-09-03T09:46:13Z INFO src.pipeline.download cache_hit path=data\raw\cbr\2019-01-01_2026-09-03\TJS.response.xml bytes=330636
+2026-09-03T09:46:13Z INFO src.pipeline.download raw_check_pass currency=TJS rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:46:13Z INFO src.pipeline.download download_start method=GetCursDynamicXML attempt=1 parameters={'FromDate': '2019-01-01T00:00:00', 'ToDate': '2026-09-03T00:00:00', 'ValutaCode': 'R01717'}
+2026-09-03T09:46:15Z INFO src.pipeline.download download_complete method=GetCursDynamicXML path=data\raw\cbr\2019-01-01_2026-09-03\UZS.response.xml bytes=338300
+2026-09-03T09:46:15Z INFO src.pipeline.download raw_check_pass currency=UZS rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:46:15Z INFO src.pipeline.download download_start method=GetCursDynamicXML attempt=1 parameters={'FromDate': '2019-01-01T00:00:00', 'ToDate': '2026-09-03T00:00:00', 'ValutaCode': 'R01370'}
+2026-09-03T09:46:17Z INFO src.pipeline.download download_complete method=GetCursDynamicXML path=data\raw\cbr\2019-01-01_2026-09-03\KGS.response.xml bytes=329913
+2026-09-03T09:46:17Z INFO src.pipeline.download raw_check_pass currency=KGS rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:46:17Z INFO src.pipeline.download download_start method=GetCursDynamicXML attempt=1 parameters={'FromDate': '2019-01-01T00:00:00', 'ToDate': '2026-09-03T00:00:00', 'ValutaCode': 'R01060'}
+2026-09-03T09:46:19Z INFO src.pipeline.download download_complete method=GetCursDynamicXML path=data\raw\cbr\2019-01-01_2026-09-03\AMD.response.xml bytes=330783
+2026-09-03T09:46:19Z INFO src.pipeline.download raw_check_pass currency=AMD rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:46:19Z INFO src.pipeline.download download_start method=GetCursDynamicXML attempt=1 parameters={'FromDate': '2019-01-01T00:00:00', 'ToDate': '2026-09-03T00:00:00', 'ValutaCode': 'R01335'}
+2026-09-03T09:46:20Z INFO src.pipeline.download download_complete method=GetCursDynamicXML path=data\raw\cbr\2019-01-01_2026-09-03\KZT.response.xml bytes=330837
+2026-09-03T09:46:20Z INFO src.pipeline.download raw_check_pass currency=KZT rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:46:20Z INFO src.pipeline.download download_start method=GetCursDynamicXML attempt=1 parameters={'FromDate': '2019-01-01T00:00:00', 'ToDate': '2026-09-03T00:00:00', 'ValutaCode': 'R01235'}
+2026-09-03T09:46:23Z INFO src.pipeline.download download_complete method=GetCursDynamicXML path=data\raw\cbr\2019-01-01_2026-09-03\USD.response.xml bytes=325191
+2026-09-03T09:46:23Z INFO src.pipeline.download raw_check_pass currency=USD rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:46:23Z INFO src.pipeline.download download_start method=GetCursDynamicXML attempt=1 parameters={'FromDate': '2019-01-01T00:00:00', 'ToDate': '2026-09-03T00:00:00', 'ValutaCode': 'R01239'}
+2026-09-03T09:46:25Z INFO src.pipeline.download download_complete method=GetCursDynamicXML path=data\raw\cbr\2019-01-01_2026-09-03\EUR.response.xml bytes=325585
+2026-09-03T09:46:26Z INFO src.pipeline.download raw_check_pass currency=EUR rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:46:26Z INFO src.pipeline.download download_start method=GetCursDynamicXML attempt=1 parameters={'FromDate': '2019-01-01T00:00:00', 'ToDate': '2026-09-03T00:00:00', 'ValutaCode': 'R01375'}
+2026-09-03T09:46:28Z INFO src.pipeline.download download_complete method=GetCursDynamicXML path=data\raw\cbr\2019-01-01_2026-09-03\CNY.response.xml bytes=326307
+2026-09-03T09:46:28Z INFO src.pipeline.download raw_check_pass currency=CNY rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:46:28Z INFO src.pipeline.cli RAW INGESTION PASS: data\raw\cbr\2019-01-01_2026-09-03\download_manifest.json
+2026-09-03T09:49:36Z INFO src.pipeline.download cache_hit path=data\raw\cbr\latest_date.response.xml bytes=398
+2026-09-03T09:49:36Z INFO src.pipeline.download cache_hit path=data\raw\cbr\currency_reference.response.xml bytes=60135
+2026-09-03T09:49:36Z INFO src.pipeline.download cache_hit path=data\raw\cbr\2019-01-01_2026-09-03\TJS.response.xml bytes=330636
+2026-09-03T09:49:36Z INFO src.pipeline.download raw_check_pass currency=TJS rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:49:36Z INFO src.pipeline.download cache_hit path=data\raw\cbr\2019-01-01_2026-09-03\UZS.response.xml bytes=338300
+2026-09-03T09:49:36Z INFO src.pipeline.download raw_check_pass currency=UZS rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:49:36Z INFO src.pipeline.download cache_hit path=data\raw\cbr\2019-01-01_2026-09-03\KGS.response.xml bytes=329913
+2026-09-03T09:49:36Z INFO src.pipeline.download raw_check_pass currency=KGS rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:49:36Z INFO src.pipeline.download cache_hit path=data\raw\cbr\2019-01-01_2026-09-03\AMD.response.xml bytes=330783
+2026-09-03T09:49:36Z INFO src.pipeline.download raw_check_pass currency=AMD rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:49:36Z INFO src.pipeline.download cache_hit path=data\raw\cbr\2019-01-01_2026-09-03\KZT.response.xml bytes=330837
+2026-09-03T09:49:36Z INFO src.pipeline.download raw_check_pass currency=KZT rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:49:36Z INFO src.pipeline.download cache_hit path=data\raw\cbr\2019-01-01_2026-09-03\USD.response.xml bytes=325191
+2026-09-03T09:49:37Z INFO src.pipeline.download raw_check_pass currency=USD rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:49:37Z INFO src.pipeline.download cache_hit path=data\raw\cbr\2019-01-01_2026-09-03\EUR.response.xml bytes=325585
+2026-09-03T09:49:37Z INFO src.pipeline.download raw_check_pass currency=EUR rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:49:37Z INFO src.pipeline.download cache_hit path=data\raw\cbr\2019-01-01_2026-09-03\CNY.response.xml bytes=326307
+2026-09-03T09:49:37Z INFO src.pipeline.download raw_check_pass currency=CNY rows=1889 range=2019-01-10..2026-09-03
+2026-09-03T09:49:37Z INFO src.pipeline.cli RAW INGESTION PASS: data\raw\cbr\2019-01-01_2026-09-03\download_manifest.json

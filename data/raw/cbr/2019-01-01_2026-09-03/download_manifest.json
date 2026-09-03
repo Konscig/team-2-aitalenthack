@@ -1,0 +1,192 @@
+{
+  "manifest_version": "1.0",
+  "pipeline_version": "0.1.0",
+  "status": "PASS",
+  "created_at_utc": "2026-09-03T09:49:37.155602+00:00",
+  "source": "Банк России",
+  "source_endpoint": "https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx",
+  "reference_method": "EnumValutesXML",
+  "history_method": "GetCursDynamicXML",
+  "requested_start_date": "2019-01-01",
+  "requested_end_date": "2026-09-03",
+  "latest_cbr_date_at_download": "2026-09-03",
+  "currency_reference_file": "data/reference/cbr_currency_codes.csv",
+  "currencies": [
+    {
+      "currency": "TJS",
+      "internal_source_identifier": "R01670",
+      "requested_start_date": "2019-01-01",
+      "requested_end_date": "2026-09-03",
+      "actual_first_date": "2019-01-10",
+      "actual_last_date": "2026-09-03",
+      "row_count": 1889,
+      "observed_internal_codes": [
+        "R01670"
+      ],
+      "source_endpoint": "https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx",
+      "request_parameters": {
+        "FromDate": "2019-01-01T00:00:00",
+        "ToDate": "2026-09-03T00:00:00",
+        "ValutaCode": "R01670"
+      },
+      "raw_filepath": "data/raw/cbr/2019-01-01_2026-09-03/TJS.response.xml",
+      "download_timestamp_utc": "2026-09-03T09:45:33.662531+00:00",
+      "file_size_bytes": 330636,
+      "checksum_sha256": "3429cbd9f246a5f14c8c4fd9f9c37312d3bea34e082b5c8022ea5dbbcc732652"
+    },
+    {
+      "currency": "UZS",
+      "internal_source_identifier": "R01717",
+      "requested_start_date": "2019-01-01",
+      "requested_end_date": "2026-09-03",
+      "actual_first_date": "2019-01-10",
+      "actual_last_date": "2026-09-03",
+      "row_count": 1889,
+      "observed_internal_codes": [
+        "R01717"
+      ],
+      "source_endpoint": "https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx",
+      "request_parameters": {
+        "FromDate": "2019-01-01T00:00:00",
+        "ToDate": "2026-09-03T00:00:00",
+        "ValutaCode": "R01717"
+      },
+      "raw_filepath": "data/raw/cbr/2019-01-01_2026-09-03/UZS.response.xml",
+      "download_timestamp_utc": "2026-09-03T09:46:15.780044+00:00",
+      "file_size_bytes": 338300,
+      "checksum_sha256": "14afbb2314f3b547c0b42fd2894bbf4d4608209092f67a081e8a29b4a43f423d"
+    },
+    {
+      "currency": "KGS",
+      "internal_source_identifier": "R01370",
+      "requested_start_date": "2019-01-01",
+      "requested_end_date": "2026-09-03",
+      "actual_first_date": "2019-01-10",
+      "actual_last_date": "2026-09-03",
+      "row_count": 1889,
+      "observed_internal_codes": [
+        "R01370"
+      ],
+      "source_endpoint": "https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx",
+      "request_parameters": {
+        "FromDate": "2019-01-01T00:00:00",
+        "ToDate": "2026-09-03T00:00:00",
+        "ValutaCode": "R01370"
+      },
+      "raw_filepath": "data/raw/cbr/2019-01-01_2026-09-03/KGS.response.xml",
+      "download_timestamp_utc": "2026-09-03T09:46:17.454938+00:00",
+      "file_size_bytes": 329913,
+      "checksum_sha256": "942735ebd615fade772585fc74a2948274bb340167779d4d617338f28a438419"
+    },
+    {
+      "currency": "AMD",
+      "internal_source_identifier": "R01060",
+      "requested_start_date": "2019-01-01",
+      "requested_end_date": "2026-09-03",
+      "actual_first_date": "2019-01-10",
+      "actual_last_date": "2026-09-03",
+      "row_count": 1889,
+      "observed_internal_codes": [
+        "R01060"
+      ],
+      "source_endpoint": "https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx",
+      "request_parameters": {
+        "FromDate": "2019-01-01T00:00:00",
+        "ToDate": "2026-09-03T00:00:00",
+        "ValutaCode": "R01060"
+      },
+      "raw_filepath": "data/raw/cbr/2019-01-01_2026-09-03/AMD.response.xml",
+      "download_timestamp_utc": "2026-09-03T09:46:19.310827+00:00",
+      "file_size_bytes": 330783,
+      "checksum_sha256": "72b8b9faae82387e53704e15298abb9a678e3d5d8bd0e6ef74c0cf0069426ed1"
+    },
+    {
+      "currency": "KZT",
+      "internal_source_identifier": "R01335",
+      "requested_start_date": "2019-01-01",
+      "requested_end_date": "2026-09-03",
+      "actual_first_date": "2019-01-10",
+      "actual_last_date": "2026-09-03",
+      "row_count": 1889,
+      "observed_internal_codes": [
+        "R01335"
+      ],
+      "source_endpoint": "https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx",
+      "request_parameters": {
+        "FromDate": "2019-01-01T00:00:00",
+        "ToDate": "2026-09-03T00:00:00",
+        "ValutaCode": "R01335"
+      },
+      "raw_filepath": "data/raw/cbr/2019-01-01_2026-09-03/KZT.response.xml",
+      "download_timestamp_utc": "2026-09-03T09:46:20.821249+00:00",
+      "file_size_bytes": 330837,
+      "checksum_sha256": "af9424e3a06daac96a349c9eab2aad898c6d66a84c0ea307ead60b8e366dfa25"
+    },
+    {
+      "currency": "USD",
+      "internal_source_identifier": "R01235",
+      "requested_start_date": "2019-01-01",
+      "requested_end_date": "2026-09-03",
+      "actual_first_date": "2019-01-10",
+      "actual_last_date": "2026-09-03",
+      "row_count": 1889,
+      "observed_internal_codes": [
+        "R01235"
+      ],
+      "source_endpoint": "https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx",
+      "request_parameters": {
+        "FromDate": "2019-01-01T00:00:00",
+        "ToDate": "2026-09-03T00:00:00",
+        "ValutaCode": "R01235"
+      },
+      "raw_filepath": "data/raw/cbr/2019-01-01_2026-09-03/USD.response.xml",
+      "download_timestamp_utc": "2026-09-03T09:46:23.343215+00:00",
+      "file_size_bytes": 325191,
+      "checksum_sha256": "a15af1f12f9efa710af335bbfa69369bd7f2a03e85b56eb69edcb4c0aa7979cd"
+    },
+    {
+      "currency": "EUR",
+      "internal_source_identifier": "R01239",
+      "requested_start_date": "2019-01-01",
+      "requested_end_date": "2026-09-03",
+      "actual_first_date": "2019-01-10",
+      "actual_last_date": "2026-09-03",
+      "row_count": 1889,
+      "observed_internal_codes": [
+        "R01239"
+      ],
+      "source_endpoint": "https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx",
+      "request_parameters": {
+        "FromDate": "2019-01-01T00:00:00",
+        "ToDate": "2026-09-03T00:00:00",
+        "ValutaCode": "R01239"
+      },
+      "raw_filepath": "data/raw/cbr/2019-01-01_2026-09-03/EUR.response.xml",
+      "download_timestamp_utc": "2026-09-03T09:46:25.981181+00:00",
+      "file_size_bytes": 325585,
+      "checksum_sha256": "a39c2afec94b1bb10c5787868dd7b17f83ac514777d4ab6137340cd564929114"
+    },
+    {
+      "currency": "CNY",
+      "internal_source_identifier": "R01375",
+      "requested_start_date": "2019-01-01",
+      "requested_end_date": "2026-09-03",
+      "actual_first_date": "2019-01-10",
+      "actual_last_date": "2026-09-03",
+      "row_count": 1889,
+      "observed_internal_codes": [
+        "R01375"
+      ],
+      "source_endpoint": "https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx",
+      "request_parameters": {
+        "FromDate": "2019-01-01T00:00:00",
+        "ToDate": "2026-09-03T00:00:00",
+        "ValutaCode": "R01375"
+      },
+      "raw_filepath": "data/raw/cbr/2019-01-01_2026-09-03/CNY.response.xml",
+      "download_timestamp_utc": "2026-09-03T09:46:28.224844+00:00",
+      "file_size_bytes": 326307,
+      "checksum_sha256": "905ff3989cf578f6e47581c3057bcc540144b7c47468fda033536822206359a5"
+    }
+  ]
+}

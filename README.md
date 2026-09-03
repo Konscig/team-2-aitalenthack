@@ -38,3 +38,21 @@
 ### Логика чтения
 
 Для понимания задачи достаточно пройти путь `CASE → BRIEF → QA_ALIGNMENT → CONTEXT_PACK → USER_STORY_MAP`. Для UX-проработки затем используйте обе Journey Map и `screenshots/`; для проверки реализуемости — `NFR` и Validation Report; перед исследованием пользователей — папку `personas/` и `interviews/`.
+
+## Нормализация курсов ЦБ РФ
+
+Offline-нормализация запускается только после raw ingestion:
+
+```powershell
+python -m src.normalization --raw-dir data/raw/cbr --output-dir data/interim
+```
+
+`unit_rate` определяется как RUB за одну единицу валюты получателя
+(`VunitRate` ЦБ, либо `Vcurs / Vnom`, если официальное поле отсутствует).
+Поэтому для отправителя, переводящего RUB, **меньший `unit_rate` означает более
+выгодный момент, больший — менее выгодный**.
+
+`fx_quote_time.parquet` и `cbr_fx_normalized.parquet` содержат только реальные
+наблюдения ЦБ. `fx_calendar_time.parquet` отдельно расширяет ряд до календарных
+дней через forward fill и маркирует такие строки `is_new_quote=False`.
+Forward-filled строка никогда не считается новым движением рынка.

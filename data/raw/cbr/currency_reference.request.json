@@ -1,0 +1,29 @@
+{
+  "source": "Банк России",
+  "source_endpoint": "https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx",
+  "http_method": "POST",
+  "soap_method": "EnumValutesXML",
+  "soap_action": "http://web.cbr.ru/EnumValutesXML",
+  "request_parameters": {
+    "Seld": "false"
+  },
+  "requested_at_utc": "2026-09-03T09:45:31.045477+00:00",
+  "download_timestamp_utc": "2026-09-03T09:45:31.546971+00:00",
+  "http_status": 200,
+  "response_headers": {
+    "Server": "ddos-guard",
+    "Connection": "close",
+    "Set-Cookie": "__ddg1_=kfz9jDXWWs9xh28I3fOh; Domain=.cbr.ru; HttpOnly; Path=/; Expires=Fri, 03-Sep-2027 09:45:30 GMT",
+    "Content-Type": "text/xml; charset=utf-8",
+    "Content-Length": "60135",
+    "Date": "Thu, 03 Sep 2026 09:45:31 GMT",
+    "Vary": "Accept-Encoding",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache",
+    "Expires": "-1",
+    "X-Frame-Options": "SAMEORIGIN"
+  },
+  "response_bytes": 60135,
+  "raw_filepath": "data/raw/cbr/currency_reference.response.xml",
+  "checksum_sha256": "0d25f0e8195f26fdf939df10b70d2aefd5fb47f2fbe38ecf2471a59284dfb529"
+}

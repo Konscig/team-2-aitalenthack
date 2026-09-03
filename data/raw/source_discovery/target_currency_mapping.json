@@ -1,0 +1,66 @@
+{
+  "TJS": {
+    "internal_code": "R01670",
+    "name": "Сомони",
+    "english_name": "Somoni",
+    "nominal": "10",
+    "numeric_code": "972",
+    "common_code": "R01670"
+  },
+  "UZS": {
+    "internal_code": "R01717",
+    "name": "Узбекский сум",
+    "english_name": "Uzbekistan Sum",
+    "nominal": "10000",
+    "numeric_code": "860",
+    "common_code": "R01717"
+  },
+  "KGS": {
+    "internal_code": "R01370",
+    "name": "Сом",
+    "english_name": "Som",
+    "nominal": "100",
+    "numeric_code": "417",
+    "common_code": "R01370"
+  },
+  "AMD": {
+    "internal_code": "R01060",
+    "name": "Армянский драм",
+    "english_name": "Armenian Dram",
+    "nominal": "100",
+    "numeric_code": "51",
+    "common_code": "R01060"
+  },
+  "KZT": {
+    "internal_code": "R01335",
+    "name": "Тенге",
+    "english_name": "Tenge",
+    "nominal": "100",
+    "numeric_code": "398",
+    "common_code": "R01335"
+  },
+  "USD": {
+    "internal_code": "R01235",
+    "name": "Доллар США",
+    "english_name": "US Dollar",
+    "nominal": "1",
+    "numeric_code": "840",
+    "common_code": "R01235"
+  },
+  "EUR": {
+    "internal_code": "R01239",
+    "name": "Евро",
+    "english_name": "Euro",
+    "nominal": "1",
+    "numeric_code": "978",
+    "common_code": "R01239"
+  },
+  "CNY": {
+    "internal_code": "R01375",
+    "name": "Юань",
+    "english_name": "Yuan Renminbi",
+    "nominal": "1",
+    "numeric_code": "156",
+    "common_code": "R01375"
+  }
+}

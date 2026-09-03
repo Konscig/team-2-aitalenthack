@@ -1,0 +1,30 @@
+{
+  "source": "Банк России",
+  "url": "https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx",
+  "http_method": "POST",
+  "soap_action": "\"http://web.cbr.ru/GetCursDynamicXML\"",
+  "request_parameters": {
+    "FromDate": "2024-01-10T00:00:00",
+    "ToDate": "2024-01-12T00:00:00",
+    "ValutaCode": "R01717"
+  },
+  "requested_at_utc": "2026-09-03T09:33:49.112069+00:00",
+  "received_at_utc": "2026-09-03T09:33:49.583096+00:00",
+  "http_status": 200,
+  "response_headers": {
+    "Server": "ddos-guard",
+    "Connection": "close",
+    "Set-Cookie": "__ddg1_=UniSm2D3FfyrjJf6ZZZc; Domain=.cbr.ru; HttpOnly; Path=/; Expires=Fri, 03-Sep-2027 09:33:49 GMT",
+    "Content-Type": "text/xml; charset=utf-8",
+    "Content-Length": "950",
+    "Date": "Thu, 03 Sep 2026 09:33:49 GMT",
+    "Vary": "Accept-Encoding",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache",
+    "Expires": "-1",
+    "X-Frame-Options": "SAMEORIGIN"
+  },
+  "response_bytes": 950,
+  "sha256": "3fb730d63044f95758b71e58e57fa65eaff5563447557a2999722ef3e5c13108",
+  "raw_file": "data/raw/source_discovery/availability_UZS_2024-01-10_2024-01-12.soap.xml"
+}

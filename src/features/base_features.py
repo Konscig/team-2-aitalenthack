@@ -182,36 +182,37 @@ def run_causality_check(
 
 def _warmup_reason(name: str) -> str:
     if name in {"down_streak", "up_streak"}:
-        return "none (starts at 0)"
+        return "нет (начинается с 0)"
     if name == "log_ret_1":
-        return "1 prior quote required"
+        return "требуется 1 предыдущая котировка"
     if name.startswith("percentile_") or name.startswith("favourability_percentile_"):
-        return f"{name.rsplit('_', 1)[-1]} prior quotes required; current quote excluded"
+        return f"требуется {name.rsplit('_', 1)[-1]} предыдущих котировок; текущая исключена"
     if name.startswith("vol_"):
-        return f"{name.rsplit('_', 1)[-1]} valid log returns required"
+        return f"требуется {name.rsplit('_', 1)[-1]} валидных лог-доходностей"
     if name == "sma_5_vs_20":
-        return "20-quote SMA warm-up"
+        return "warm-up для SMA по 20 котировкам"
     if name == "sma_20_vs_60":
-        return "60-quote SMA warm-up"
-    return f"trailing {name.rsplit('_', 1)[-1]}-quote window/lag required"
+        return "warm-up для SMA по 60 котировкам"
+    return f"требуется trailing-окно/лаг из {name.rsplit('_', 1)[-1]} котировок"
 
 
 def _report(features: pd.DataFrame, causality: dict[str, object], input_path: Path, outputs: list[Path]) -> str:
     columns = feature_columns()
     lines = [
         "# Base market features report", "",
-        f"Input: `{input_path.as_posix()}` (official CBR quote-time observations only).", "",
-        "`rate` is RUB per 1 unit of recipient currency; lower is more favourable for a RUB sender.", "",
-        f"Rows: **{len(features)}**. Features: **{len(columns)}**. Output columns: **{len(features.columns)}**.", "",
-        "## Coverage", "",
-        "| corridor | rows | first_date | last_date |", "| --- | ---: | --- | --- |",
+        f"Вход: `{input_path.as_posix()}` (только официальные quote-time наблюдения ЦБ РФ).", "",
+        "`rate` — количество RUB за 1 единицу валюты получателя; меньший курс выгоднее отправителю RUB.", "",
+        f"Строк: **{len(features)}**. Признаков: **{len(columns)}**. Выходных столбцов: **{len(features.columns)}**.", "",
+        "## Покрытие", "",
+        "| Коридор | Строки | Первая дата | Последняя дата |", "| --- | ---: | --- | --- |",
     ]
     for corridor, group in features.groupby("corridor", sort=True):
         lines.append(f"| {corridor} | {len(group)} | {group.date.min().date()} | {group.date.max().date()} |")
-    lines += ["", "## Missing values and warm-up", "", "NaNs are retained: they represent insufficient trailing quote history, not missing-value imputation.", "", "| feature | NaN count | reason |", "| --- | ---: | --- |"]
+    lines += ["", "## Пропуски и warm-up", "", "NaN сохранены: они означают недостаточную trailing-историю котировок, а не заполнение отсутствующих значений.", "", "| Признак | Количество NaN | Причина |", "| --- | ---: | --- |"]
     for column in columns:
         lines.append(f"| {column} | {int(features[column].isna().sum())} | {_warmup_reason(column)} |")
-    lines += ["", "## Summary statistics", "", features[["rate", *columns]].describe().T.to_markdown(), "", "## Sample rows", "", features.groupby("corridor", sort=True).tail(1).to_markdown(index=False), "", "## Causality", "", f"Status: **{causality['status']}**. Compared all features after truncating source history at T for `{causality['samples']}` deterministic random date/corridor pairs (seed `{causality['seed']}`).", "", "Outputs: " + ", ".join(f"`{path.as_posix()}`" for path in outputs) + ".", "", "No labels, cross-currency features, macro data, calendar expansion, or synthetic production values were created.", "", "**BASE FEATURES STATUS: PASS**", ""]
+    statistics = features[["rate", *columns]].describe().T.rename(columns={"count": "количество", "mean": "среднее", "std": "ст. отклонение", "min": "минимум", "max": "максимум"})
+    lines += ["", "## Сводная статистика", "", statistics.to_markdown(), "", "## Примеры строк", "", features.groupby("corridor", sort=True).tail(1).to_markdown(index=False), "", "## Проверка причинности", "", f"Статус: **{causality['status']}**. Все признаки сопоставлены после обрезки исходной истории на дате T для `{causality['samples']}` детерминированно выбранных случайных пар дата/коридор (seed `{causality['seed']}`).", "", "Выходные файлы: " + ", ".join(f"`{path.as_posix()}`" for path in outputs) + ".", "", "Labels, межвалютные признаки, макроданные, календарное расширение и синтетические production-значения не создавались.", "", "**BASE FEATURES STATUS: PASS**", ""]
     return "\n".join(lines)
 
 

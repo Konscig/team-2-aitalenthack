@@ -1,3 +1,6 @@
 __pycache__/
 *.py[cod]
 uv.lock
+.pytest_cache/
+.ruff_cache/
+.venv/

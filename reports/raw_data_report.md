@@ -1,10 +1,10 @@
 # Raw data ingestion report
 
-Generated UTC: `2026-09-03T09:49:37.155602+00:00`  
-Source: `https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx`  
-Requested range: `2019-01-01` — `2026-09-03`
+Сформирован (UTC): `2026-09-03T09:49:37.155602+00:00`
+Источник: `https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx`
+Запрошенный период: `2019-01-01` — `2026-09-03`
 
-| Currency | Internal ID | Actual range | Rows | Bytes | SHA-256 | Raw file |
+| Валюта | Внутренний ID | Фактический период | Строки | Байты | SHA-256 | Raw-файл |
 | --- | --- | --- | ---: | ---: | --- | --- |
 | TJS | R01670 | 2019-01-10 — 2026-09-03 | 1889 | 330636 | `3429cbd9f246a5f14c8c4fd9f9c37312d3bea34e082b5c8022ea5dbbcc732652` | `data/raw/cbr/2019-01-01_2026-09-03/TJS.response.xml` |
 | UZS | R01717 | 2019-01-10 — 2026-09-03 | 1889 | 338300 | `14afbb2314f3b547c0b42fd2894bbf4d4608209092f67a081e8a29b4a43f423d` | `data/raw/cbr/2019-01-01_2026-09-03/UZS.response.xml` |
@@ -15,15 +15,15 @@ Requested range: `2019-01-01` — `2026-09-03`
 | EUR | R01239 | 2019-01-10 — 2026-09-03 | 1889 | 325585 | `a39c2afec94b1bb10c5787868dd7b17f83ac514777d4ab6137340cd564929114` | `data/raw/cbr/2019-01-01_2026-09-03/EUR.response.xml` |
 | CNY | R01375 | 2019-01-10 — 2026-09-03 | 1889 | 326307 | `905ff3989cf578f6e47581c3057bcc540144b7c47468fda033536822206359a5` | `data/raw/cbr/2019-01-01_2026-09-03/CNY.response.xml` |
 
-## Raw checks
+## Проверки raw-данных
 
-- All files are non-empty and checksummed after byte-for-byte storage.
-- Currency identifiers match the dynamic official reference mapping.
-- Dates are present, unique, ordered and inside the requested interval.
-- `Vnom`, `Vcurs` and `VunitRate` are positive in every row.
-- Every currency covers at least five years.
-- `VunitRate` equals `Vcurs / Vnom` within absolute/relative tolerance `1e-12`; 
-  this permits only SOAP floating-representation tails and does not alter raw values.
-- No normalization dataset, features or labels were created in this stage.
+- Все файлы непустые; после побайтового сохранения для них рассчитаны контрольные суммы.
+- Идентификаторы валют соответствуют динамически полученному официальному справочнику.
+- Даты присутствуют, уникальны, упорядочены и находятся внутри запрошенного периода.
+- Значения `Vnom`, `Vcurs` и `VunitRate` положительны во всех строках.
+- Для каждой валюты доступно не менее пяти лет истории.
+- `VunitRate` равен `Vcurs / Vnom` в пределах абсолютного/относительного допуска `1e-12`;
+  допуск учитывает только погрешность представления чисел в SOAP и не изменяет raw-значения.
+- На этом этапе не создавались нормализованные наборы, признаки или labels.
 
 **RAW INGESTION: PASS**

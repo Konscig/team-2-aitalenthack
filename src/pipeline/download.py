@@ -334,11 +334,11 @@ def write_report(path: Path, manifest: dict[str, object]) -> None:
     lines = [
         "# Raw data ingestion report",
         "",
-        f"Generated UTC: `{manifest['created_at_utc']}`  ",
-        f"Source: `{manifest['source_endpoint']}`  ",
-        f"Requested range: `{manifest['requested_start_date']}` — `{manifest['requested_end_date']}`",
+        f"Сформирован (UTC): `{manifest['created_at_utc']}`",
+        f"Источник: `{manifest['source_endpoint']}`",
+        f"Запрошенный период: `{manifest['requested_start_date']}` — `{manifest['requested_end_date']}`",
         "",
-        "| Currency | Internal ID | Actual range | Rows | Bytes | SHA-256 | Raw file |",
+        "| Валюта | Внутренний ID | Фактический период | Строки | Байты | SHA-256 | Raw-файл |",
         "| --- | --- | --- | ---: | ---: | --- | --- |",
     ]
     for item in manifest["currencies"]:  # type: ignore[index]
@@ -349,16 +349,16 @@ def write_report(path: Path, manifest: dict[str, object]) -> None:
     lines.extend(
         [
             "",
-            "## Raw checks",
+            "## Проверки raw-данных",
             "",
-            "- All files are non-empty and checksummed after byte-for-byte storage.",
-            "- Currency identifiers match the dynamic official reference mapping.",
-            "- Dates are present, unique, ordered and inside the requested interval.",
-            "- `Vnom`, `Vcurs` and `VunitRate` are positive in every row.",
-            "- Every currency covers at least five years.",
-            "- `VunitRate` equals `Vcurs / Vnom` within absolute/relative tolerance `1e-12`; ",
-            "  this permits only SOAP floating-representation tails and does not alter raw values.",
-            "- No normalization dataset, features or labels were created in this stage.",
+            "- Все файлы непустые; после побайтового сохранения для них рассчитаны контрольные суммы.",
+            "- Идентификаторы валют соответствуют динамически полученному официальному справочнику.",
+            "- Даты присутствуют, уникальны, упорядочены и находятся внутри запрошенного периода.",
+            "- Значения `Vnom`, `Vcurs` и `VunitRate` положительны во всех строках.",
+            "- Для каждой валюты доступно не менее пяти лет истории.",
+            "- `VunitRate` равен `Vcurs / Vnom` в пределах абсолютного/относительного допуска `1e-12`;",
+            "  допуск учитывает только погрешность представления чисел в SOAP и не изменяет raw-значения.",
+            "- На этом этапе не создавались нормализованные наборы, признаки или labels.",
             "",
             "**RAW INGESTION: PASS**",
         ]

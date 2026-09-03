@@ -320,11 +320,11 @@ def _report_markdown(summary: dict[str, object]) -> str:
     lines = [
         "# Normalization report",
         "",
-        f"Raw manifest: `{summary['raw_manifest']}`",
+        f"Raw-манифест: `{summary['raw_manifest']}`",
         "",
-        "Direction: `unit_rate` is RUB per 1 unit of recipient currency. Lower is better for a RUB sender; higher is worse.",
+        "Направление: `unit_rate` — количество RUB за 1 единицу валюты получателя. Для отправителя RUB меньшее значение выгоднее, большее — хуже.",
         "",
-        "| currency | first_date | last_date | rows | nominals_seen | min_unit_rate | median_unit_rate | max_unit_rate | duplicates | validation_status |",
+        "| Валюта | Первая дата | Последняя дата | Строки | Номиналы | Минимальный unit_rate | Медианный unit_rate | Максимальный unit_rate | Дубликаты | Статус валидации |",
         "| --- | --- | --- | ---: | --- | ---: | ---: | ---: | ---: | --- |",
     ]
     for currency, item in summary["quote_time_by_currency"].items():  # type: ignore[union-attr]
@@ -337,12 +337,12 @@ def _report_markdown(summary: dict[str, object]) -> str:
     lines.extend(
         [
             "",
-            f"Quote-time rows: `{summary['quote_time_rows']}`. These are source observations only.",
-            f"Calendar-time rows: `{summary['calendar_time_rows']}`; forward-filled rows: `{summary['calendar_forward_filled_rows']}`.",
+            f"Строк в quote-time: `{summary['quote_time_rows']}`. Это только исходные наблюдения.",
+            f"Строк в calendar-time: `{summary['calendar_time_rows']}`; строк с forward fill: `{summary['calendar_forward_filled_rows']}`.",
             "",
-            "Forward-filled rows retain the last official quote, set `is_new_quote=False`, preserve its date in `source_quote_date`, and record calendar age in `days_since_new_quote`. They are not new market movements.",
+            "Строки с forward fill сохраняют последнюю официальную котировку, получают `is_new_quote=False`, хранят её дату в `source_quote_date` и календарный возраст в `days_since_new_quote`. Они не считаются новым движением рынка.",
             "",
-            "No ML features or labels were created.",
+            "ML-признаки и labels не создавались.",
             "",
             "**NORMALIZATION STATUS: PASS**",
             "",

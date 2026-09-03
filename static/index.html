@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Переводы за рубеж — демо</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="phone-shell">
+      <section id="app" aria-live="polite"></section>
+      <nav class="bottom-nav" aria-label="Навигация">
+        <button type="button" onclick="go('home')">⌂<span>Главный</span></button>
+        <button type="button" class="active" onclick="go('home')">⇄<span>Платежи</span></button>
+        <button type="button" onclick="go('settings')">⚙<span>Настройки</span></button>
+      </nav>
+    </main>
+    <aside class="push-console" aria-label="Панель тестового push-уведомления">
+      <h2>Тестовый push</h2>
+      <p>Показывается поверх макета и открывает сценарий при нажатии.</p>
+      <form onsubmit="triggerPush(event)">
+        <label for="push-corridor">Страна</label>
+        <select id="push-corridor">
+          <option value="TJS">Таджикистан</option><option value="UZS">Узбекистан</option>
+          <option value="KGS">Кыргызстан</option><option value="AMD">Армения</option><option value="KZT">Казахстан</option>
+        </select>
+        <label for="push-status">Статус</label>
+        <select id="push-status"><option value="changed">Устарел (changed)</option><option value="current">Актуален (current)</option><option value="unknown">Неизвестен (unknown)</option></select>
+        <label for="push-model">Сценарий модели</label>
+        <select id="push-model"><option value="favorable_now">Есть основания сейчас</option><option value="withhold">Плохой / ничего не говорить</option><option value="better_later">В следующем окне лучше</option></select>
+        <label for="push-text">Текст push</label>
+        <textarea id="push-text" rows="4" maxlength="240" placeholder="Оставь пустым, чтобы использовать текст сценария"></textarea>
+        <button class="primary" type="submit">Показать push</button>
+        <p id="push-result" class="tiny" aria-live="polite"></p>
+      </form>
+    </aside>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

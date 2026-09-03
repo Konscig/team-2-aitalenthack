@@ -35,3 +35,7 @@ The checks must cover the contracts in [openapi.yaml](contracts/openapi.yaml) an
 ## Expected result
 
 All transfers and results are labelled simulated; restarting the service clears preferences and simulated transfer records. No real payment or push action occurs.
+
+## Validation record
+
+Validated on 2026-09-03: automated suite passed (27 tests). Manual browser walkthrough confirmed the `changed` scenario, its non-colour status label, immediate ordinary-transfer action, three-method selection, and phone-recipient form. No deviations recorded.

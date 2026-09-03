@@ -17,8 +17,8 @@ description: "Actionable implementation tasks for the Web Transfer Prototype"
 
 **Purpose**: Add the minimum runtime and test dependencies for a single-process web PoC.
 
-- [ ] T001 Add FastAPI and Uvicorn runtime dependencies to `requirements.txt`
-- [ ] T002 Create the web-PoC test module and a reusable TestClient fixture in `tests/test_web_poc.py`
+- [X] T001 Add FastAPI and Uvicorn runtime dependencies to `requirements.txt`
+- [X] T002 Create the web-PoC test module and a reusable TestClient fixture in `tests/test_web_poc.py`
 
 ---
 
@@ -28,12 +28,12 @@ description: "Actionable implementation tasks for the Web Transfer Prototype"
 
 **⚠️ CRITICAL**: Complete this phase before starting user-story work.
 
-- [ ] T003 Create the FastAPI application, generated OpenAPI metadata, `/docs`, root route, and static-file mounting in `app.py`
-- [ ] T004 Define supported corridors, deterministic fixture reset helper, and shared Pydantic schemas in `app.py`
-- [ ] T005 [P] Create the mobile-width page shell and bottom navigation in `static/index.html`
-- [ ] T006 [P] Create dark, reference-inspired mobile layout primitives and accessible focus states in `static/styles.css`
-- [ ] T007 Create shared browser state, safe rendering helpers, and recoverable screen navigation in `static/app.js`
-- [ ] T008 Add foundation tests for service health, root page, static assets, and all five supported corridors in `tests/test_web_poc.py`
+- [X] T003 Create the FastAPI application, generated OpenAPI metadata, `/docs`, root route, and static-file mounting in `app.py`
+- [X] T004 Define supported corridors, deterministic fixture reset helper, and shared Pydantic schemas in `app.py`
+- [X] T005 [P] Create the mobile-width page shell and bottom navigation in `static/index.html`
+- [X] T006 [P] Create dark, reference-inspired mobile layout primitives and accessible focus states in `static/styles.css`
+- [X] T007 Create shared browser state, safe rendering helpers, and recoverable screen navigation in `static/app.js`
+- [X] T008 Add foundation tests for service health, root page, static assets, and all five supported corridors in `tests/test_web_poc.py`
 
 **Checkpoint**: The empty but runnable service and mobile shell work locally; all stories can now use the common fixture layer.
 
@@ -47,15 +47,15 @@ description: "Actionable implementation tasks for the Web Transfer Prototype"
 
 ### Tests for User Story 1
 
-- [ ] T009 [US1] Add contract tests for signal and push fixtures, all three statuses, source snapshot/availability metadata, and unsupported-corridor errors in `tests/test_web_poc.py`
-- [ ] T010 [US1] Add safety-flow tests for country-only deep links and an ordinary urgent-transfer route in `tests/test_web_poc.py`
+- [X] T009 [US1] Add contract tests for signal and push fixtures, all three statuses, source snapshot/availability metadata, and unsupported-corridor errors in `tests/test_web_poc.py`
+- [X] T010 [US1] Add safety-flow tests for country-only deep links and an ordinary urgent-transfer route in `tests/test_web_poc.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement neutral UI-scenario signal fixtures with retained public-source snapshot and date-T availability metadata, plus `GET /api/signals` and `GET /api/signals/{corridor}` in `app.py`
-- [ ] T012 [US1] Implement `GET /api/pushes` with a validated country-only deep link in `app.py`
-- [ ] T013 [US1] Implement the demo-push entry and signal-status screen for `current`, `changed`, and `unknown`, labelled as a UI scenario rather than a live assessment, in `static/app.js`
-- [ ] T014 [US1] Add content-library wording, non-colour status labels, source-snapshot disclaimer, and equal-priority ordinary-transfer action styles in `static/styles.css`
+- [X] T011 [US1] Implement neutral UI-scenario signal fixtures with retained public-source snapshot and date-T availability metadata, plus `GET /api/signals` and `GET /api/signals/{corridor}` in `app.py`
+- [X] T012 [US1] Implement `GET /api/pushes` with a validated country-only deep link in `app.py`
+- [X] T013 [US1] Implement the demo-push entry and signal-status screen for `current`, `changed`, and `unknown`, labelled as a UI scenario rather than a live assessment, in `static/app.js`
+- [X] T014 [US1] Add content-library wording, non-colour status labels, source-snapshot disclaimer, and equal-priority ordinary-transfer action styles in `static/styles.css`
 
 **Checkpoint**: A reviewer can demonstrate every status and immediately reach a neutral transfer path without a real signal calculation or a claim of benefit.
 
@@ -69,14 +69,14 @@ description: "Actionable implementation tasks for the Web Transfer Prototype"
 
 ### Tests for User Story 2
 
-- [ ] T015 [US2] Add transfer contract tests for phone/card happy paths, missing fields, non-positive amounts, the 1,000,000 ₽ phone and 500,000 ₽ card limits, and simulation labels in `tests/test_web_poc.py`
+- [X] T015 [US2] Add transfer contract tests for phone/card happy paths, missing fields, non-positive amounts, the 1,000,000 ₽ phone and 500,000 ₽ card limits, and simulation labels in `tests/test_web_poc.py`
 
 ### Implementation for User Story 2
 
-- [ ] T016 [US2] Implement `POST /api/transfers` and `GET /api/transfers` with method-specific illustrative limits and in-memory simulated results only in `app.py`
-- [ ] T017 [US2] Implement Payments, country, three-method selection with visual-only account option, phone-recipient, card-recipient, validation, and synthetic-result screens in `static/app.js`
-- [ ] T018 [US2] Style method cards, form controls, validation messages, and the simulated-result marker in `static/styles.css`
-- [ ] T019 [US2] Add a visible simulated-transfer notice and synthetic-input guidance to `static/index.html`
+- [X] T016 [US2] Implement `POST /api/transfers` and `GET /api/transfers` with method-specific illustrative limits and in-memory simulated results only in `app.py`
+- [X] T017 [US2] Implement Payments, country, three-method selection with visual-only account option, phone-recipient, card-recipient, validation, and synthetic-result screens in `static/app.js`
+- [X] T018 [US2] Style method cards, form controls, validation messages, and the simulated-result marker in `static/styles.css`
+- [X] T019 [US2] Add a visible simulated-transfer notice and synthetic-input guidance to `static/index.html`
 
 **Checkpoint**: Both detailed reference branches work without real credentials, payment processing, or a claimed execution rate.
 
@@ -90,14 +90,14 @@ description: "Actionable implementation tasks for the Web Transfer Prototype"
 
 ### Tests for User Story 3
 
-- [ ] T020 [US3] Add tests for generated `/docs` and `/openapi.json`, preference read/update, invalid preference corridor, and restart/reset helper behavior in `tests/test_web_poc.py`
+- [X] T020 [US3] Add tests for generated `/docs` and `/openapi.json`, preference read/update, invalid preference corridor, and restart/reset helper behavior in `tests/test_web_poc.py`
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Implement `GET /api/preferences` and `PUT /api/preferences` with process-memory semantics in `app.py`
-- [ ] T022 [US3] Add a demo notification-preferences screen that reads and updates only synthetic settings in `static/app.js`
-- [ ] T023 [US3] Add preference controls and the no-real-delivery explanation in `static/styles.css`
-- [ ] T024 [US3] Align FastAPI route tags, summaries, response models, date-T snapshot metadata, and validation descriptions with `specs/001-web-transfer-prototype/contracts/openapi.yaml` in `app.py`
+- [X] T021 [US3] Implement `GET /api/preferences` and `PUT /api/preferences` with process-memory semantics in `app.py`
+- [X] T022 [US3] Add a demo notification-preferences screen that reads and updates only synthetic settings in `static/app.js`
+- [X] T023 [US3] Add preference controls and the no-real-delivery explanation in `static/styles.css`
+- [X] T024 [US3] Align FastAPI route tags, summaries, response models, date-T snapshot metadata, and validation descriptions with `specs/001-web-transfer-prototype/contracts/openapi.yaml` in `app.py`
 
 **Checkpoint**: Swagger is usable as the requested interface explorer and all operator-facing data remains local to the running process.
 
@@ -107,10 +107,10 @@ description: "Actionable implementation tasks for the Web Transfer Prototype"
 
 **Purpose**: Check the integrated demo against product safety, visual references, and reproducible instructions.
 
-- [ ] T025 [P] Review all strings in `app.py` and `static/app.js` against `specs/001-web-transfer-prototype/content-library.md` and its forbidden-claims rules
-- [ ] T026 [P] Compare the form order, three-method selection, alternate phone/card branches, and synthetic confirmation boundary in `static/app.js` and `static/styles.css` with `docs/screenshots/README.md`
-- [ ] T027 Update web-PoC launch and Swagger instructions in `README.md`
-- [ ] T028 Run the automated checks and manual walkthroughs from `specs/001-web-transfer-prototype/quickstart.md`, including plain-language and no-colour status checks, and record any deviations in `specs/001-web-transfer-prototype/quickstart.md`
+- [X] T025 [P] Review all strings in `app.py` and `static/app.js` against `specs/001-web-transfer-prototype/content-library.md` and its forbidden-claims rules
+- [X] T026 [P] Compare the form order, three-method selection, alternate phone/card branches, and synthetic confirmation boundary in `static/app.js` and `static/styles.css` with `docs/screenshots/README.md`
+- [X] T027 Update web-PoC launch and Swagger instructions in `README.md`
+- [X] T028 Run the automated checks and manual walkthroughs from `specs/001-web-transfer-prototype/quickstart.md`, including plain-language and no-colour status checks, and record any deviations in `specs/001-web-transfer-prototype/quickstart.md`
 
 ---
 

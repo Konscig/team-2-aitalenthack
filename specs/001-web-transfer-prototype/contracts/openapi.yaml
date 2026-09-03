@@ -1,0 +1,88 @@
+openapi: 3.1.0
+info:
+  title: Web Transfer Prototype API
+  version: 0.1.0
+  description: Synthetic PoC contracts only. No payment, execution rate, personal data, or real push delivery.
+paths:
+  /api/health:
+    get:
+      summary: Read demo service status
+      responses: { '200': { description: Demo service is available } }
+  /api/corridors:
+    get:
+      summary: List supported demo corridors
+      responses: { '200': { description: Corridor list } }
+  /api/signals:
+    get:
+      summary: List deterministic signal fixtures
+      parameters: [ { name: status, in: query, schema: { $ref: '#/components/schemas/FreshnessStatus' } } ]
+      responses:
+        '200':
+          description: Signal list
+          content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Signal' } } } }
+  /api/signals/{corridor}:
+    get:
+      summary: Read a corridor signal fixture
+      parameters:
+        - { name: corridor, in: path, required: true, schema: { $ref: '#/components/schemas/CorridorCode' } }
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/FreshnessStatus' } }
+      responses:
+        '200': { description: Signal fixture, content: { application/json: { schema: { $ref: '#/components/schemas/Signal' } } } }
+        '404': { description: Unsupported corridor }
+  /api/pushes:
+    get:
+      summary: List a synthetic push notification
+      parameters:
+        - { name: corridor, in: query, schema: { $ref: '#/components/schemas/CorridorCode' } }
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/FreshnessStatus' } }
+      responses: { '200': { description: Synthetic push list } }
+  /api/preferences:
+    get:
+      summary: Read process-local demo notification preferences
+      responses: { '200': { description: Preferences } }
+    put:
+      summary: Replace process-local demo notification preferences
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Preferences' } } } }
+      responses: { '200': { description: Updated preferences }, '422': { description: Invalid preference values } }
+  /api/transfers:
+    get:
+      summary: List simulated transfers in the current process
+      responses: { '200': { description: Simulated transfers } }
+    post:
+      summary: Create an explicitly simulated transfer
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/TransferRequest' } } } }
+      responses: { '200': { description: Simulated result }, '422': { description: Invalid synthetic form data } }
+components:
+  schemas:
+    CorridorCode: { type: string, enum: [TJS, UZS, KGS, AMD, KZT] }
+    FreshnessStatus: { type: string, enum: [current, changed, unknown], default: current }
+    Signal:
+      type: object
+      required: [id, corridor, freshness_status, source, source_snapshot_ref, available_at_t, observation_date, rule_version, message, disclaimer]
+      properties:
+        id: { type: string, description: Deterministic demo fixture ID }
+        corridor: { $ref: '#/components/schemas/CorridorCode' }
+        freshness_status: { $ref: '#/components/schemas/FreshnessStatus' }
+        source: { type: string, description: Public analytical reference only; never an execution rate }
+        source_snapshot_ref: { type: string, description: Retained public-source snapshot identifier available at date T }
+        available_at_t: { type: string, format: date-time, description: Fixture availability at date T }
+        observation_date: { type: string, format: date }
+        rule_version: { type: string }
+        message: { type: string, description: Neutral demo-scenario wording only }
+        disclaimer: { type: string }
+    Preferences:
+      type: object
+      required: [enabled, corridors, quiet_hours]
+      properties:
+        enabled: { type: boolean }
+        corridors: { type: array, items: { $ref: '#/components/schemas/CorridorCode' } }
+        quiet_hours: { type: string, example: '22:00–08:00' }
+    TransferRequest:
+      type: object
+      required: [corridor, method, recipient, amount_rub, debit_account]
+      properties:
+        corridor: { $ref: '#/components/schemas/CorridorCode' }
+        method: { type: string, enum: [phone, card] }
+        recipient: { type: string, minLength: 3, description: Synthetic input only }
+        amount_rub: { type: number, exclusiveMinimum: 0, maximum: 1000000, description: 'Illustrative limit: 1,000,000 ₽ for phone; 500,000 ₽ for card. The service validates the method-specific limit.' }
+        debit_account: { type: string, minLength: 3, description: Synthetic account label only }

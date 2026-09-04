@@ -8,3 +8,6 @@ dist/
 *.tmp
 *.swp
 uv.lock
+.pytest_cache/
+.ruff_cache/
+.venv/

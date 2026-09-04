@@ -1,0 +1,56 @@
+{
+  "period": {
+    "start": "2025-07-01",
+    "end": "2026-07-31"
+  },
+  "features_input": "data/features/fx_features_daily.parquet",
+  "calendar_input": "data/interim/fx_calendar_time.parquet",
+  "horizons": [
+    1,
+    3,
+    5,
+    10,
+    20
+  ],
+  "horizon_unit": "calendar_days",
+  "x_bps": [
+    25,
+    50,
+    100
+  ],
+  "rules": [
+    {
+      "id": "regret_max",
+      "description": "Максимальное future regret за h дней не превышает X bps."
+    },
+    {
+      "id": "near_local_min",
+      "description": "Курс T не дальше X bps от минимума в календарном окне T±h."
+    },
+    {
+      "id": "centered_mean_benefit",
+      "description": "Курс T лучше среднего в окне T±h минимум на X bps."
+    },
+    {
+      "id": "future_median_benefit",
+      "description": "Курс T лучше медианы следующих h дней минимум на X bps."
+    },
+    {
+      "id": "stable_80pct",
+      "description": "Не менее 80% следующих h дней не лучше T более чем на X bps."
+    },
+    {
+      "id": "no_early_better",
+      "description": "В первой половине горизонта нет более выгодного курса сверх X bps."
+    },
+    {
+      "id": "low_p10_30_and_regret",
+      "description": "Нижние 10% 30 прошлых котировок и future regret не выше X bps."
+    },
+    {
+      "id": "low_p20_60_and_regret",
+      "description": "Нижние 20% 60 прошлых котировок и future regret не выше X bps."
+    }
+  ],
+  "note": "Future-derived columns and good are retrospective labels, never causal features."
+}

@@ -342,7 +342,7 @@ def _report_markdown(summary: dict[str, object]) -> str:
             "",
             "Строки с forward fill сохраняют последнюю официальную котировку, получают `is_new_quote=False`, хранят её дату в `source_quote_date` и календарный возраст в `days_since_new_quote`. Они не считаются новым движением рынка.",
             "",
-            "ML-признаки и labels не создавались.",
+            "В рамках этапа нормализации ML-признаки и labels не создавались; последующие feature-артефакты описаны отдельно.",
             "",
             "**NORMALIZATION STATUS: PASS**",
             "",

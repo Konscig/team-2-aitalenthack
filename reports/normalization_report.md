@@ -20,6 +20,6 @@ Raw-манифест: `data/raw/cbr/2019-01-01_2026-09-03/download_manifest.json
 
 Строки с forward fill сохраняют последнюю официальную котировку, получают `is_new_quote=False`, хранят её дату в `source_quote_date` и календарный возраст в `days_since_new_quote`. Они не считаются новым движением рынка.
 
-ML-признаки и labels не создавались.
+В рамках этапа нормализации ML-признаки и labels не создавались; последующие feature-артефакты описаны отдельно.
 
 **NORMALIZATION STATUS: PASS**

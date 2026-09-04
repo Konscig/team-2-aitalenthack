@@ -1,7 +1,12 @@
 # Исследование источников курсов валют ЦБ РФ
 
-Дата исследования: 2026-09-03. Этап ограничен source discovery: полный
-пятилетний набор данных не загружался, features и labels не создавались.
+Дата исследования источника: 2026-09-03. Source discovery был начальным этапом,
+после которого production pipeline загрузил и обработал полный snapshot за
+период запроса `2019-01-01` — `2026-09-03`. Фактические котировки доступны с
+`2019-01-10` по `2026-09-03`: по 1 889 наблюдений для каждой из восьми валют,
+15 112 строк суммарно. Построены нормализованные, базовые, reversal и
+cross-currency признаки; labels по-прежнему не создавались. Актуальный состав
+артефактов описан в [`dataset_card.md`](dataset_card.md).
 
 ## Выбранный официальный источник
 
@@ -188,3 +193,23 @@ recipient_currency_per_rub = 1 / rub_per_recipient_currency
 все восемь нужных валют. Mapping может и должен разрешаться динамически через
 справочник ЦБ. Тестовая история USD получена из SOAP и подтверждена публичной
 страницей ЦБ без расхождений по трем проверенным датам.
+
+## Статус после production ingestion
+
+Discovery-выводы подтверждены на полном сохранённом snapshot:
+
+- загружены TJS, UZS, KGS, AMD, KZT, USD, EUR и CNY;
+- raw SOAP responses и request metadata сохранены в
+  `data/raw/cbr/2019-01-01_2026-09-03/`;
+- manifest: `download_manifest.json`, статус `PASS`;
+- фактический диапазон каждой валюты: `2019-01-10` — `2026-09-03`;
+- каждая валюта содержит 1 889 реальных котировок;
+- валидация пустых файлов, идентификаторов, дат, положительности значений,
+  покрытия, checksum и равенства `VunitRate = Vcurs / Vnom` пройдена;
+- нормализация и feature engineering выполнены только из сохранённых raw-данных.
+
+Подробные фактические результаты находятся в
+[`raw_data_report.md`](../reports/raw_data_report.md),
+[`normalization_report.md`](../reports/normalization_report.md),
+[`base_features_report.md`](../reports/base_features_report.md) и
+[`advanced_features_report.md`](../reports/advanced_features_report.md).

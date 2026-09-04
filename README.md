@@ -56,3 +56,20 @@ python -m src.normalization --raw-dir data/raw/cbr --output-dir data/interim
 наблюдения ЦБ. `fx_calendar_time.parquet` отдельно расширяет ряд до календарных
 дней через forward fill и маркирует такие строки `is_new_quote=False`.
 Forward-filled строка никогда не считается новым движением рынка.
+
+## Актуальные датасеты и признаки
+
+Production snapshot запрошен за `2019-01-01` — `2026-09-03`; фактические
+официальные котировки ЦБ доступны с `2019-01-10` по `2026-09-03`. Собраны TJS,
+UZS, KGS, AMD, KZT, USD, EUR и CNY: по 1 889 наблюдений на валюту, 15 112
+quote-time строк суммарно.
+
+- `data/interim/fx_quote_time.parquet` — только реальные наблюдения ЦБ;
+- `data/interim/fx_calendar_time.parquet` — календарное представление восьми валют;
+- `data/features/base_market_features.parquet` — 64 базовых признака для пяти целевых коридоров;
+- `data/features/fx_features_daily.parquet` — 104 поля с base, reversal и cross-currency features на quote-time;
+- `data/features/fx_features_calendar_daily.parquet` — отдельное ежедневное представление: 13 970 строк, добавленные даты имеют `is_new_quote=False`;
+- `notebooks/01_fx_features_eda.ipynb` — выполненный EDA без labels и моделей.
+
+Полное описание происхождения, слоёв, размеров, semantics, проверок и
+ограничений приведено в [`docs/dataset_card.md`](docs/dataset_card.md).

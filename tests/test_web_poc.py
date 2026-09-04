@@ -22,28 +22,31 @@ def test_service_shell_and_corridors() -> None:
     assert codes == {"TJS", "UZS", "KGS", "AMD", "KZT"}
 
 
-def test_signal_and_push_fixtures_are_safe_and_traceable() -> None:
-    for status in ("current", "changed", "unknown"):
-        item = client().get(f"/api/signals/TJS?status={status}").json()
-        assert item["freshness_status"] == status
+def test_gate_fixtures_are_safe_and_traceable() -> None:
+    for scenario in ("strong", "expired", "silent"):
+        item = client().get(f"/api/gates/TJS?scenario={scenario}").json()
+        assert item["scenario"] == scenario
         assert item["source_snapshot_ref"]
         assert item["available_at_t"]
         assert "демо" in item["disclaimer"].lower()
-    changed = client().get("/api/signals/TJS?status=changed").json()
-    assert "выгод" not in changed["message"].lower()
-    push = client().get("/api/pushes?corridor=TJS&status=current").json()[0]
-    assert push["deep_link"] == "/?corridor=TJS&status=current&model_scenario=withhold"
-    assert client().get("/api/signals/XXX").status_code == 404
+    expired = client().get("/api/gates/TJS?scenario=expired").json()
+    assert expired["hint"] is None
+    assert expired["emit_push"] is True
+    push = client().get("/api/pushes?corridor=TJS&scenario=strong").json()[0]
+    assert push["deep_link"] == "/?corridor=TJS&scenario=strong"
+    assert client().get("/api/pushes?corridor=TJS&scenario=silent").json() == []
+    assert client().get("/api/gates/XXX").status_code == 404
 
 
 def test_triggered_push_appears_in_process_local_inbox() -> None:
     api = client()
-    triggered = api.post("/api/pushes", json={"corridor": "TJS", "status": "changed", "model_scenario": "favorable_now", "body": "Свой тестовый текст"})
+    triggered = api.post("/api/pushes", json={"corridor": "TJS", "scenario": "strong", "body": "Свой тестовый текст"})
     assert triggered.status_code == 200
     push = triggered.json()["push"]
-    assert push["deep_link"] == "/?corridor=TJS&status=changed&model_scenario=favorable_now"
+    assert push["deep_link"] == "/?corridor=TJS&scenario=strong"
+    assert push["title"] == "✦ Лови момент"
     assert push["body"] == "Свой тестовый текст"
-    assert push["model_label"]
+    assert push["gate"]["scenario"] == "strong"
     assert api.get("/api/pushes/inbox").json() == [push]
 
 
@@ -92,9 +95,10 @@ def test_demo_quote_and_transfer_result_include_recipient_amount() -> None:
     assert transfer.json()["quote"]["recipient_amount"] == 126.0
 
 
-def test_model_scenarios_keep_a_bad_label_hidden_and_expose_future_window() -> None:
+def test_only_a_confirmed_strong_gate_exposes_a_hint() -> None:
     api = client()
-    hidden = api.get("/api/signals/TJS?model_scenario=withhold").json()["model_assessment"]
-    assert hidden["client_label"] is None
-    later = api.get("/api/signals/TJS?model_scenario=better_later").json()["model_assessment"]
-    assert later["forecast_date"] == "2026-09-04"
+    strong = api.get("/api/gates/TJS?scenario=strong").json()
+    assert strong["hint"]["title"] == "В такие периоды курс обычно выгоднее"
+    assert "до 2 дней" in strong["hint"]["body"]
+    assert api.get("/api/gates/TJS?scenario=expired").json()["hint"] is None
+    assert api.post("/api/pushes", json={"corridor": "TJS", "scenario": "silent"}).json()["emitted"] is False

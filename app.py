@@ -1,6 +1,5 @@
 """Autonomous web PoC for the cross-border transfer client journey."""
 
-from datetime import date
 from enum import Enum
 from pathlib import Path
 from uuid import uuid4
@@ -11,16 +10,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
-class FreshnessStatus(str, Enum):
-    current = "current"
-    changed = "changed"
-    unknown = "unknown"
-
-
-class ModelScenario(str, Enum):
-    favorable_now = "favorable_now"
-    withhold = "withhold"
-    better_later = "better_later"
+class GateScenario(str, Enum):
+    strong = "strong"
+    expired = "expired"
+    silent = "silent"
 
 
 class TransferMethod(str, Enum):
@@ -41,6 +34,7 @@ SNAPSHOT_AVAILABLE_AT = "2026-09-03T00:00:00+03:00"
 # Synthetic UI rates only. They are deliberately not connected to a market or
 # execution system, so the prototype never presents them as a promise.
 DEMO_RATES_RUB = {"TJS": 0.105, "UZS": 145.0, "KGS": 0.92, "AMD": 4.55, "KZT": 5.75}
+FRAME_DAYS = {"TJS": 2, "UZS": 2, "KGS": 3, "AMD": 2, "KZT": 2}
 
 
 class PreferencesUpdate(BaseModel):
@@ -80,8 +74,7 @@ class TransferRequest(BaseModel):
 
 class PushTrigger(BaseModel):
     corridor: str = "TJS"
-    status: FreshnessStatus = FreshnessStatus.changed
-    model_scenario: ModelScenario = ModelScenario.withhold
+    scenario: GateScenario = GateScenario.strong
     body: str | None = Field(default=None, min_length=1, max_length=240)
 
     @field_validator("corridor")
@@ -125,36 +118,34 @@ def corridor_or_404(corridor: str) -> dict:
     return result
 
 
-def model_assessment_fixture(scenario: ModelScenario) -> dict:
-    options = {
-        ModelScenario.favorable_now: {"scenario": scenario.value, "client_label": "Демо-модель: есть основания рассмотреть перевод сегодня", "push_label": "Есть основания рассмотреть перевод сегодня.", "disclaimer": "Тестовая метка модели, не финансовая рекомендация и не гарантия курса."},
-        ModelScenario.withhold: {"scenario": scenario.value, "client_label": None, "push_label": None, "disclaimer": "Модель не даёт клиентской оценки в этом сценарии."},
-        ModelScenario.better_later: {"scenario": scenario.value, "client_label": "Демо-прогноз: в следующем окне может быть выгоднее", "push_label": "В следующем окне может быть выгоднее.", "forecast_date": "2026-09-04", "disclaimer": "Тестовый прогноз модели, не финансовая рекомендация и не гарантия курса."},
-    }
-    return options[scenario]
-
-
-def signal_fixture(corridor: str, status: FreshnessStatus, model_scenario: ModelScenario = ModelScenario.withhold) -> dict:
+def gate_fixture(corridor: str, scenario: GateScenario) -> dict:
     details = corridor_or_404(corridor)
-    messages = {
-        FreshnessStatus.current: "Публичный ориентир в демо-сценарии не изменился. Если перевод можно не торопить, вы можете открыть обычный путь.",
-        FreshnessStatus.changed: "С момента пуша публичный ориентир изменился. Не используйте старое уведомление как основание для решения.",
-        FreshnessStatus.unknown: "Свежесть публичного ориентира не подтверждена. Мы не знаем, сохранился ли описанный в пуше контекст.",
+    scenarios = {
+        GateScenario.strong: {
+            "emit_push": True,
+            "hint": {
+                "title": "В такие периоды курс обычно выгоднее",
+                "body": f"За ту же сумму в рублях можно отправить больше валюты. Обычно такой период для перевода в {details['country']} длится до {FRAME_DAYS[corridor.upper()]} дней.",
+            },
+        },
+        GateScenario.expired: {
+            "emit_push": True,
+            "hint": None,
+        },
+        GateScenario.silent: {"emit_push": False, "hint": None},
     }
+    gate = scenarios[scenario]
     return {
-        "id": f"demo-{corridor.lower()}-{status.value}",
+        "id": f"gate-{corridor.lower()}-{scenario.value}",
         "corridor": corridor.upper(),
         "country": details["country"],
         "currency": details["currency"],
-        "freshness_status": status.value,
-        "source": "Банк России, публичный аналитический ориентир",
+        "scenario": scenario.value,
+        "emit_push": gate["emit_push"],
+        "hint": gate["hint"],
         "source_snapshot_ref": SNAPSHOT_REF,
         "available_at_t": SNAPSHOT_AVAILABLE_AT,
-        "observation_date": str(date(2026, 9, 3)),
-        "rule_version": "demo-ui-scenario-1",
-        "message": messages[status],
-        "model_assessment": model_assessment_fixture(model_scenario),
-        "disclaimer": "Демо-сценарий, не курс исполнения, не прогноз и не рекомендация переводить сейчас.",
+        "disclaimer": "Демо-фикстура: это не гарантия курса и не рекомендация переводить сейчас.",
     }
 
 
@@ -183,14 +174,14 @@ def list_corridors() -> list[dict]:
     return [{"code": code, **details} for code, details in CORRIDORS.items()]
 
 
-@app.get("/api/signals", tags=["Сигналы"], summary="Получить UI-сценарии сигналов")
-def list_signals(status: FreshnessStatus = Query(FreshnessStatus.current), model_scenario: ModelScenario = Query(ModelScenario.withhold)) -> list[dict]:
-    return [signal_fixture(code, status, model_scenario) for code in CORRIDORS]
+@app.get("/api/gates", tags=["Контекст перевода"], summary="Получить demo-фикстуры gate")
+def list_gates(scenario: GateScenario = Query(GateScenario.strong)) -> list[dict]:
+    return [gate_fixture(code, scenario) for code in CORRIDORS]
 
 
-@app.get("/api/signals/{corridor}", tags=["Сигналы"], summary="Получить UI-сценарий для направления")
-def get_signal(corridor: str, status: FreshnessStatus = Query(FreshnessStatus.current), model_scenario: ModelScenario = Query(ModelScenario.withhold)) -> dict:
-    return signal_fixture(corridor, status, model_scenario)
+@app.get("/api/gates/{corridor}", tags=["Контекст перевода"], summary="Получить demo-gate для направления")
+def get_gate(corridor: str, scenario: GateScenario = Query(GateScenario.strong)) -> dict:
+    return gate_fixture(corridor, scenario)
 
 
 @app.get("/api/quotes/{corridor}", tags=["Переводы"], summary="Рассчитать синтетический ориентир суммы получения")
@@ -198,32 +189,32 @@ def get_quote(corridor: str, amount_rub: int = Query(..., gt=0, le=1_000_000)) -
     return quote_fixture(corridor, amount_rub)
 
 
-@app.get("/api/pushes", tags=["Пуши"], summary="Получить синтетический push и country-only deep link")
-def list_pushes(corridor: str = "TJS", status: FreshnessStatus = FreshnessStatus.current, model_scenario: ModelScenario = ModelScenario.withhold) -> list[dict]:
-    signal = signal_fixture(corridor, status, model_scenario)
-    return [{
-        "id": f"push-{signal['id']}",
-        "title": f"Демо: перевод в {signal['country']}",
-        "body": "Откройте, чтобы посмотреть статус публичного ориентира.",
-        "deep_link": f"/?corridor={signal['corridor']}&status={signal['freshness_status']}&model_scenario={model_scenario.value}",
-        "signal": signal,
-    }]
+@app.get("/api/pushes", tags=["Пуши"], summary="Получить push только для пройденного demo-gate")
+def list_pushes(corridor: str = "TJS", scenario: GateScenario = GateScenario.strong) -> list[dict]:
+    gate = gate_fixture(corridor, scenario)
+    if not gate["emit_push"]:
+        return []
+    return [build_push(gate)]
 
 
 @app.post("/api/pushes", tags=["Пуши"], summary="Поставить тестовый push в очередь открытого web-прототипа")
 def trigger_push(payload: PushTrigger) -> dict:
-    signal = signal_fixture(payload.corridor, payload.status, payload.model_scenario)
-    model = signal["model_assessment"]
-    push = {
-        "id": f"triggered-{uuid4()}",
-        "title": f"Перевод в {signal['country']}" + (" · можно сейчас" if payload.model_scenario == ModelScenario.favorable_now else ""),
-        "body": payload.body or signal["message"],
-        "model_label": model["client_label"],
-        "deep_link": f"/?corridor={signal['corridor']}&status={signal['freshness_status']}&model_scenario={payload.model_scenario.value}",
-        "signal": signal,
-    }
+    gate = gate_fixture(payload.corridor, payload.scenario)
+    if not gate["emit_push"]:
+        return {"message": "В этом сценарии пуш не отправляется: пользователь видит обычный путь без контекста.", "emitted": False}
+    push = build_push(gate, payload.body)
     push_inbox.append(push)
-    return {"message": "Тестовый push поставлен в очередь открытого web-прототипа.", "push": push}
+    return {"message": "Тестовый push поставлен в очередь открытого web-прототипа.", "emitted": True, "push": push}
+
+
+def build_push(gate: dict, body: str | None = None) -> dict:
+    return {
+        "id": f"triggered-{uuid4()}",
+        "title": "✦ Лови момент",
+        "body": body or f"Сейчас выгодный курс для перевода в {gate['country']}!",
+        "deep_link": f"/?corridor={gate['corridor']}&scenario={gate['scenario']}",
+        "gate": gate,
+    }
 
 
 @app.get("/api/pushes/inbox", tags=["Пуши"], summary="Получить очередь тестовых push-уведомлений")

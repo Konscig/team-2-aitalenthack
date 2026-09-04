@@ -9,6 +9,7 @@
 | [01-product-brief.md](01-product-brief.md) | Для кого продукт, какую проблему решает и в чём его ценность? |
 | [02-mvp-and-scenario.md](02-mvp-and-scenario.md) | Что входит в MVP, чего в нём нет и как выглядит основной сценарий? |
 | [03-validation-and-ai-product.md](03-validation-and-ai-product.md) | Как проверяем гипотезу, какие риски и допущения, что сделал AI Product и как решения связаны с технической реализацией? |
+| [05-hackathon-success.md](05-hackathon-success.md) | Что именно можно честно назвать хорошим результатом в рамках хакатона? |
 
 Полное связное описание проекта находится в
 [../PROJECT_DESCRIPTION.md](../PROJECT_DESCRIPTION.md).

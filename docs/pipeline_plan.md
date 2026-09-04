@@ -1,52 +1,55 @@
 # План воспроизводимого FX pipeline
 
-Документ описывает целевую архитектуру. На этапе 1 реализован только
-source-discovery probe; production ingestion, normalization, features и labels
-еще не создавались.
+Документ первоначально описывал целевую архитектуру. На 2026-09-03 реализованы
+source discovery, production ingestion, нормализация, base features, reversal и
+cross-currency features, календарное расширение и EDA. Labels, temporal split,
+backtest и модели пока не создавались. Фактический паспорт артефактов находится
+в [`dataset_card.md`](dataset_card.md).
 
-## Почему нужна новая структура
+## Реализованная структура
 
-Текущий repository содержит продуктовый brief, context pack, интервью, персоны,
-user story map и скриншоты, но не имеет data/ML-кода и соглашений о хранении
-данных. Эти артефакты остаются на верхнем уровне без перемещения, чтобы не
-ломать существующие ссылки и работу команды. Новый pipeline добавляется рядом
-как изолированный контур.
+Data/ML-контур добавлен рядом с продуктовыми документами без перемещения
+существующих артефактов:
 
 ```text
 data/
-  raw/             # immutable byte-for-byte responses + request metadata
-  reference/       # versioned parsed currency mappings
-  interim/         # validated and normalized observations
-  features/        # past/current-only feature tables
-  labels/          # future-dependent targets, physically separate
+  raw/cbr/         # неизменённые SOAP responses, requests и manifest
+  reference/       # справочник валют ЦБ
+  interim/         # quote-time и calendar-time нормализованные данные
+  features/        # base, advanced и calendar-expanded features
 src/
-  cbr_fx/
-    config.py
-    cbr_client.py
-    provenance.py
-    schemas.py
-    validate.py
-    normalize.py
-    features.py
-    labels.py
-    cli.py
+  pipeline/        # CLI и ingestion
+  normalization.py
+  features/
+    base_features.py
+    advanced_features.py
+    calendar_features.py
 tests/
-  unit/
-  integration/
-  fixtures/        # small recorded official responses, never invented rates
+  test_raw_ingestion.py
+  test_normalization.py
+  test_base_features.py
+  test_advanced_features.py
+  test_calendar_features.py
 reports/
-  data_quality/
-  validation/
+  raw_data_report.md
+  normalization_report.md
+  base_features_report.md
+  advanced_features_report.md
+  eda_findings.md
+notebooks/
+  01_fx_features_eda.ipynb
 docs/
   source_research.md
   pipeline_plan.md
+  dataset_card.md
 scripts/
   source_discovery.py
   validate_target_history.py
 ```
 
-`data/raw/source_discovery/` уже содержит только ограниченные raw-артефакты
-этапа 1. Полный пятилетний набор не загружен.
+`data/raw/source_discovery/` содержит ограниченные проверочные артефакты этапа
+discovery. Полный production snapshot хранится отдельно в
+`data/raw/cbr/2019-01-01_2026-09-03/` и покрывает более семи с половиной лет.
 
 ## Этапы и зависимости
 
@@ -67,15 +70,17 @@ scripts/
    только для хвостов числового представления SOAP. Пустой ряд — ошибка.
 5. **Normalization.** Сформировать tidy table, сохранив raw rate и nominal:
    `rub_per_fx = VunitRate`; при необходимости `fx_per_rub = 1 / VunitRate`.
-   Календарные пропуски не заполнять. Результат идет в `data/interim/`.
-6. **Feature engineering — отдельный будущий этап.** Сортировать внутри каждой
-   валюты по доступному времени. Любая строка T использует только значения с
-   timestamp `<= T`; rolling только trailing, `center=False`. Scaling обучается
-   только на train-period и затем применяется к validation/test.
+   Канонический quote-time ряд не расширять. Отдельно сформировать calendar-time
+   представление causal forward fill с `is_new_quote`, `source_quote_date` и
+   `days_since_new_quote`. Результаты сохраняются в `data/interim/`.
+6. **Feature engineering — реализовано.** Base, reversal и cross-currency
+   признаки рассчитаны по quote-time. Любая строка T использует только значения
+   с timestamp `<= T`; rolling только trailing, `center=False`. Causality tests
+   пройдены. Scaling пока не применяется.
 7. **Labels — отдельный будущий этап.** Future horizon разрешен только здесь.
    Labels сохраняются физически отдельно и присоединяются к features после
    temporal split. Хвост без полного горизонта исключается, а не заполняется.
-8. **Temporal validation.** Разбиение train/validation/test только по времени,
+8. **Temporal validation — следующий этап.** Разбиение train/validation/test только по времени,
    желательно с purge/embargo размером не меньше label horizon. Метрики и DQ
    reports сохраняются с manifest запуска.
 
@@ -93,21 +98,21 @@ config
 snapshot выбранного run. Это позволяет повторить transformation независимо от
 изменений внешнего источника.
 
-## Планируемые файлы и контракты
+## Реализованные файлы и контракты
 
-На один production run с ID `<run_id>`:
+Текущий зафиксированный production run:
 
 ```text
-data/raw/<run_id>/manifest.json
-data/raw/<run_id>/currency_reference.response.xml
-data/raw/<run_id>/currency_reference.request.json
-data/raw/<run_id>/<ISO>.response.xml
-data/raw/<run_id>/<ISO>.request.json
-data/reference/<run_id>/currencies.parquet
-data/interim/<run_id>/rates.parquet
-data/features/<run_id>/features.parquet
-data/labels/<run_id>/labels.parquet
-reports/data_quality/<run_id>.json
+data/raw/cbr/2019-01-01_2026-09-03/download_manifest.json
+data/raw/cbr/2019-01-01_2026-09-03/<ISO>.response.xml
+data/raw/cbr/2019-01-01_2026-09-03/<ISO>.request.json
+data/reference/cbr_currency_codes.csv
+data/interim/cbr_fx_normalized.parquet
+data/interim/fx_quote_time.parquet
+data/interim/fx_calendar_time.parquet
+data/features/base_market_features.parquet
+data/features/fx_features_daily.parquet
+data/features/fx_features_calendar_daily.parquet
 ```
 
 Request metadata должны включать source, endpoint, method/SOAPAction, параметры,

@@ -173,6 +173,6 @@ NaN сохранены: они означают недостаточную trail
 
 Выходные файлы: `data/features/base_market_features.parquet`, `data/features/base_market_features.csv`.
 
-Labels, межвалютные признаки, макроданные, календарное расширение и синтетические production-значения не создавались.
+В рамках этапа base features не создавались labels, межвалютные признаки, макроданные, календарное расширение или синтетические production-значения. Advanced и calendar feature-артефакты построены отдельными последующими этапами.
 
 **BASE FEATURES STATUS: PASS**

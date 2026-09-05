@@ -34,7 +34,6 @@ SNAPSHOT_AVAILABLE_AT = "2026-09-03T00:00:00+03:00"
 # Synthetic UI rates only. They are deliberately not connected to a market or
 # execution system, so the prototype never presents them as a promise.
 DEMO_RATES_RUB = {"TJS": 0.105, "UZS": 145.0, "KGS": 0.92, "AMD": 4.55, "KZT": 5.75}
-FRAME_DAYS = {"TJS": 2, "UZS": 2, "KGS": 3, "AMD": 2, "KZT": 2}
 
 
 class PreferencesUpdate(BaseModel):
@@ -125,7 +124,7 @@ def gate_fixture(corridor: str, scenario: GateScenario) -> dict:
             "emit_push": True,
             "hint": {
                 "title": "В такие периоды курс обычно выгоднее",
-                "body": f"За ту же сумму в рублях можно отправить больше валюты. Обычно такой период для перевода в {details['country']} длится до {FRAME_DAYS[corridor.upper()]} дней.",
+                "body": "За ту же сумму в рублях можно отправить больше валюты.",
             },
         },
         GateScenario.expired: {

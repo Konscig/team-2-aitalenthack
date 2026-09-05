@@ -99,6 +99,6 @@ def test_only_a_confirmed_strong_gate_exposes_a_hint() -> None:
     api = client()
     strong = api.get("/api/gates/TJS?scenario=strong").json()
     assert strong["hint"]["title"] == "В такие периоды курс обычно выгоднее"
-    assert "до 2 дней" in strong["hint"]["body"]
+    assert strong["hint"]["body"] == "За ту же сумму в рублях можно отправить больше валюты."
     assert api.get("/api/gates/TJS?scenario=expired").json()["hint"] is None
     assert api.post("/api/pushes", json={"corridor": "TJS", "scenario": "silent"}).json()["emitted"] is False

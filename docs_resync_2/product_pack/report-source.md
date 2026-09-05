@@ -30,3 +30,38 @@ well-being за меру agency. Нужна композиция из (1) пон
 и не подходят как primary metric короткого эксперимента. Поэтому предлагаемый
 `Agency pulse` — новый, пилотный инструмент: его нельзя называть валидированной
 шкалой и применять для профилирования клиентов.
+
+---
+
+# Исследовательская записка: рыночные паттерны FX-сигналов
+
+**Дата:** 2026-09-04
+**Аудитория:** продуктовая команда.
+**Scope:** сравнение публично доступных функций FX-alert/target-rate у Wise, OFX
+и Western Union с гипотезой signal-assisted transfer. Не является обзором всех
+рынков или юридическим заключением.
+
+## Прямой вывод
+
+Rate alerts и переход от alert к проверке актуальной цены — существующий
+рыночный паттерн. Пользовательская задача нашей гипотезы отличается тем, что
+клиент не задавал собственный целевой порог: система проактивно находит момент,
+который затем нужно передать понятно и подтвердить условиями конкретного
+перевода.
+
+## Claim-to-source ledger
+
+| Claim | Источник | Дата / доступ |
+| --- | --- | --- |
+| Wise отправляет alert при достижении заданного пользователем курса; tracker rate может не быть доступен при самом переводе. | [Wise Rate Alerts](https://wise.com/gb/tools/exchange-rate-alerts) | Прочитано 2026-09-04. |
+| Wise Auto Conversions автоматически конвертирует заданную сумму, когда пользовательский целевой курс достигнут. | [Wise Auto Conversions](https://wise.com/help/articles/0QO88oPwfcCqgAX1fvN6D/how-do-i-set-up-auto-conversions) | Прочитано 2026-09-04. |
+| OFX мониторит заданный клиентом target rate и после alert предлагает завершить transfer по customer rate; target rate и customer rate различаются. | [OFX Market Rate Alert](https://www.ofx.com/en-au/forex-news/exchange-rate-alert/) | Прочитано 2026-09-04. |
+| Western Union создаёт alert после ввода суммы и методов; применимый курс зависит от этих параметров в момент transfer. | [Western Union Exchange Rate Alert FAQ](https://www.westernunion.com/gb/en/frequently-asked-questions/faq-exchange-rate-alert.html) | Прочитано 2026-09-04. |
+| Wise Business описывает последовательность target alert → review live cost/fee/deadline → user decision. | [Wise Business Guide](https://wise.com/gb/blog/how-to-set-rate-alerts-on-wise-business) | Опубликовано 2026-08-26; прочитано 2026-09-04. |
+
+## Ограничения и остановка поиска
+
+После трёх независимых категорий первичных источников (consumer alert, transfer
+alert с параметрами сделки, auto-execution) дополнительный поиск перестал бы
+существенно менять вывод. Не проверялись локальные продукты РФ и функции,
+доступные только после авторизации.

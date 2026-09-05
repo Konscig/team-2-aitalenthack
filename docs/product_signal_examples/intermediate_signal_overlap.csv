@@ -1,0 +1,11 @@
+left_signal_id,right_signal_id,same_corridor_date_events
+M01,M01,746
+M01,M02,9
+M01,M03,0
+M01,M04,3
+M02,M02,97
+M02,M03,0
+M02,M04,0
+M03,M03,425
+M03,M04,0
+M04,M04,277

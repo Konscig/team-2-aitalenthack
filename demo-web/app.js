@@ -114,6 +114,7 @@ function selectCorridor(code) {
   $('#ticker-country').textContent = item.country;
   updateStats();
   drawChart();
+  $('#transfer-country').value = code;
   updateTransfer();
 }
 
@@ -154,12 +155,13 @@ function showSignal(signal) {
 }
 
 function sendPush(signal) {
+  const corridor = state.corridor;
   const item = CORRIDORS[state.corridor];
   const copy = getPushCopy(signal.type, { ...item, facts: signal.facts });
   const toast = document.createElement('button');
   toast.className = 'push-toast';
   toast.innerHTML = `<span class="push-app">A</span><span><strong>${copy.title}</strong><span>${copy.body}</span></span><small>сейчас</small>`;
-  toast.addEventListener('click', () => { openDrawer(); toast.remove(); });
+  toast.addEventListener('click', () => { openDrawer(corridor); toast.remove(); });
   $('#push-stack').prepend(toast);
   window.setTimeout(() => toast.remove(), 11000);
 }
@@ -182,7 +184,13 @@ function moveCrosshair(event) {
   tip.style.left = `${Math.min(xx + 12, rect.width - 165)}px`; tip.style.top = `${Math.max(10, yy - 48)}px`;
 }
 
-function openDrawer() { $('#transfer-drawer').classList.add('open'); $('#transfer-drawer').setAttribute('aria-hidden', 'false'); updateTransfer(); }
+function openDrawer(code = state.corridor) {
+  const selected = CORRIDORS[code] ? code : state.corridor;
+  $('#transfer-country').value = selected;
+  $('#transfer-drawer').classList.add('open');
+  $('#transfer-drawer').setAttribute('aria-hidden', 'false');
+  updateTransfer();
+}
 function closeDrawer() { $('#transfer-drawer').classList.remove('open'); $('#transfer-drawer').setAttribute('aria-hidden', 'true'); }
 function updateTransfer() {
   const code = $('#transfer-country').value || state.corridor;
@@ -198,7 +206,7 @@ $('.range-picker').addEventListener('click', (event) => { const button = event.t
 $('#signal-layer').addEventListener('click', (event) => { const button = event.target.closest('[data-signal]'); if (button) showSignal(state.signals[Number(button.dataset.signal)]); });
 chartWrap.addEventListener('mousemove', moveCrosshair);
 chartWrap.addEventListener('mouseleave', () => { $('#crosshair').hidden = true; $('#chart-tooltip').hidden = true; });
-$('#open-transfer').addEventListener('click', openDrawer);
+$('#open-transfer').addEventListener('click', () => openDrawer());
 document.querySelectorAll('[data-close-drawer]').forEach((item) => item.addEventListener('click', closeDrawer));
 $('#transfer-country').addEventListener('change', updateTransfer); $('#transfer-amount').addEventListener('input', updateTransfer);
 $('#transfer-form').addEventListener('submit', (event) => { event.preventDefault(); closeDrawer(); const toast = document.createElement('div'); toast.className = 'push-toast'; toast.innerHTML = '<span class="push-app">✓</span><span><strong>Демо-перевод создан</strong><span>Деньги не списывались и не отправлялись.</span></span><small>сейчас</small>'; $('#push-stack').prepend(toast); setTimeout(() => toast.remove(), 7000); });

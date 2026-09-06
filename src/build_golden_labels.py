@@ -26,6 +26,11 @@ FINAL_RULE = "near_local_min"
 FINAL_HORIZON_DAYS = 10
 FINAL_X_BPS = 100
 FINAL_OUTPUT = "data/labels/golden_labels.parquet"
+CLOSING_RULE = "past_min_band_and_future_median"
+CLOSING_HORIZON_DAYS = 10
+CLOSING_MIN_REBOUND_BPS = 100
+CLOSING_MAX_REBOUND_BPS = 200
+CLOSING_MIN_FUTURE_MEDIAN_RISE_BPS = 100
 
 
 @dataclass(frozen=True)
@@ -72,27 +77,40 @@ def _calendar_rates(calendar: pd.DataFrame) -> dict[str, pd.Series]:
 def _future_diagnostics(dates: pd.Series, rates: pd.Series, calendar: pd.Series, horizon: int) -> pd.DataFrame:
     records = []
     for date, rate in zip(dates, rates, strict=True):
+        past_dates = pd.date_range(date - pd.Timedelta(days=horizon), periods=horizon, freq="D")
         future_dates = pd.date_range(date + pd.Timedelta(days=1), periods=horizon, freq="D")
         centered_dates = pd.date_range(date - pd.Timedelta(days=horizon), periods=2 * horizon + 1, freq="D")
+        past = calendar.reindex(past_dates)
         future = calendar.reindex(future_dates)
         centered = calendar.reindex(centered_dates)
-        if future.isna().any():
+        if past.isna().any() or future.isna().any():
             records.append(
                 {
+                    "past_min_rate": np.nan,
+                    "past_min_date": pd.NaT,
+                    "days_since_past_min": np.nan,
+                    "rebound_from_past_min_bps": np.nan,
                     "future_min_rate": np.nan,
                     "future_median_rate": np.nan,
+                    "future_median_change_bps": np.nan,
                     "future_regret_bps": np.nan,
                     "future_safe_day_share": np.nan,
                     "early_regret_bps": np.nan,
                 }
             )
             continue
+        past_min_rate = past.min()
         regret = max(0.0, 10_000 * (rate - future.min()) / rate)
         early = future.iloc[: max(1, int(np.ceil(horizon / 2)))]
         records.append(
             {
+                "past_min_rate": past_min_rate,
+                "past_min_date": past.idxmin(),
+                "days_since_past_min": (date - past.idxmin()).days,
+                "rebound_from_past_min_bps": 10_000 * (rate - past_min_rate) / past_min_rate,
                 "future_min_rate": future.min(),
                 "future_median_rate": future.median(),
+                "future_median_change_bps": 10_000 * (future.median() - rate) / rate,
                 "future_regret_bps": regret,
                 "future_safe_day_share": np.nan,  # Filled after choosing X.
                 "early_regret_bps": max(0.0, 10_000 * (rate - early.min()) / rate),
@@ -119,6 +137,22 @@ def _future_diagnostics(dates: pd.Series, rates: pd.Series, calendar: pd.Series,
         / diagnostics.future_median_rate.to_numpy()
     )
     return diagnostics
+
+
+def _closing(frame: pd.DataFrame) -> pd.Series:
+    """Mark days just outside ``good`` before sustained deterioration.
+
+    T must be strictly 1%--2% above the minimum of the previous ten calendar
+    days. Hindsight confirms the label when the median rate over the next ten
+    calendar days is at least 1% worse than at T. ``closing`` and ``good`` are
+    disjoint by construction.
+    """
+    return (
+        ~frame.good.astype(bool)
+        & frame.rebound_from_past_min_bps.gt(CLOSING_MIN_REBOUND_BPS)
+        & frame.rebound_from_past_min_bps.le(CLOSING_MAX_REBOUND_BPS)
+        & frame.future_median_change_bps.ge(CLOSING_MIN_FUTURE_MEDIAN_RISE_BPS)
+    )
 
 
 def _good(rule: str, frame: pd.DataFrame, x_bps: int, horizon: int, calendar: pd.Series) -> pd.Series:
@@ -278,9 +312,15 @@ def build_final_golden(
         diagnostics = _future_diagnostics(aligned.date, aligned.rate, rates[corridor], horizon)
         aligned = pd.concat([aligned.reset_index(drop=True), diagnostics], axis=1)
         aligned["good"] = _good(FINAL_RULE, aligned, x_bps, horizon, rates[corridor]).fillna(False).astype(bool)
+        aligned["closing"] = _closing(aligned).fillna(False).astype("int8")
         aligned["label_rule"] = FINAL_RULE
         aligned["label_horizon_days"] = horizon
         aligned["label_x_bps"] = x_bps
+        aligned["closing_label_rule"] = CLOSING_RULE
+        aligned["closing_horizon_days"] = CLOSING_HORIZON_DAYS
+        aligned["closing_min_rebound_bps"] = CLOSING_MIN_REBOUND_BPS
+        aligned["closing_max_rebound_bps"] = CLOSING_MAX_REBOUND_BPS
+        aligned["closing_min_future_median_rise_bps"] = CLOSING_MIN_FUTURE_MEDIAN_RISE_BPS
         aligned["label_candidate_days"] = "monday_to_friday"
         parts.append(aligned)
 
@@ -289,8 +329,12 @@ def build_final_golden(
         raise ValueError("Duplicate date/corridor rows in final golden dataset")
     if result.date.dt.dayofweek.ge(5).any():
         raise ValueError("Weekend candidate leaked into final golden dataset")
-    if result[["date", "corridor", "rate", "good"]].isna().any().any():
+    if result[["date", "corridor", "rate", "good", "closing"]].isna().any().any():
         raise ValueError("Null key/rate/label in final golden dataset")
+    if (~result.closing.isin([0, 1])).any():
+        raise ValueError("Closing target must contain only 0/1")
+    if (result.good & result.closing.astype(bool)).any():
+        raise ValueError("Good and closing targets must not overlap")
     return result
 
 
@@ -412,7 +456,11 @@ def main(argv: list[str] | None = None) -> int:
         start=args.start,
         end=args.end,
     )
-    counts = golden.groupby("corridor").good.agg(rows="size", good_days="sum")
+    counts = golden.groupby("corridor").agg(
+        rows=("good", "size"),
+        good_days=("good", "sum"),
+        closing_days=("closing", "sum"),
+    )
     print(f"PASS: final golden dataset -> {args.output}\n{counts.to_string()}")
     return 0
 

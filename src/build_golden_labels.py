@@ -31,6 +31,11 @@ CLOSING_HORIZON_DAYS = 10
 CLOSING_MIN_REBOUND_BPS = 100
 CLOSING_MAX_REBOUND_BPS = 200
 CLOSING_MIN_FUTURE_MEDIAN_RISE_BPS = 100
+FACT_DECLINE_QUOTE_TRANSITIONS = 3
+FACT_WEEKLY_LOOKBACK_DAYS = 7
+FACT_WEEKLY_GAIN_BPS = 100
+FACT_PERCENTILE_LOOKBACK_DAYS = 30
+FACT_PERCENTILE_SHARE = 0.90
 
 
 @dataclass(frozen=True)
@@ -153,6 +158,55 @@ def _closing(frame: pd.DataFrame) -> pd.Series:
         & frame.rebound_from_past_min_bps.le(CLOSING_MAX_REBOUND_BPS)
         & frame.future_median_change_bps.ge(CLOSING_MIN_FUTURE_MEDIAN_RISE_BPS)
     )
+
+
+def _positive_market_facts(
+    dates: pd.Series,
+    current_source_dates: pd.Series,
+    calendar: pd.DataFrame,
+) -> pd.DataFrame:
+    """Compute factual third-priority triggers using only information at T."""
+    daily = calendar.sort_values("date").set_index("date")["unit_rate"].astype(float)
+    quotes = (
+        calendar.sort_values("date")
+        .drop_duplicates("source_quote_date", keep="last")
+        .set_index("source_quote_date")["unit_rate"]
+        .astype(float)
+    )
+    rows = []
+    for date, source_date in zip(dates, current_source_dates, strict=True):
+        date = pd.Timestamp(date)
+        source_date = pd.Timestamp(source_date)
+        recent_quotes = quotes.loc[:source_date].iloc[-(FACT_DECLINE_QUOTE_TRANSITIONS + 1) :]
+        decline_3 = len(recent_quotes) == FACT_DECLINE_QUOTE_TRANSITIONS + 1 and bool(
+            recent_quotes.diff().dropna().lt(0).all()
+        )
+
+        previous_week_rate = daily.get(date - pd.Timedelta(days=FACT_WEEKLY_LOOKBACK_DAYS), np.nan)
+        weekly_gain = bool(
+            pd.notna(previous_week_rate) and daily.at[date] <= previous_week_rate * (1 - FACT_WEEKLY_GAIN_BPS / 10_000)
+        )
+
+        previous_month = daily.reindex(
+            pd.date_range(
+                date - pd.Timedelta(days=FACT_PERCENTILE_LOOKBACK_DAYS),
+                date - pd.Timedelta(days=1),
+                freq="D",
+            )
+        )
+        low_percentile = bool(
+            not previous_month.isna().any() and previous_month.gt(daily.at[date]).mean() >= FACT_PERCENTILE_SHARE
+        )
+        rows.append(
+            {
+                "fact_decline_3_quotes": decline_3,
+                "fact_weekly_gain_1pct": weekly_gain,
+                "fact_low_percentile_30d": low_percentile,
+            }
+        )
+    result = pd.DataFrame(rows)
+    result["positive_market_fact"] = result.any(axis=1)
+    return result.astype("int8")
 
 
 def _good(rule: str, frame: pd.DataFrame, x_bps: int, horizon: int, calendar: pd.Series) -> pd.Series:
@@ -313,6 +367,12 @@ def build_final_golden(
         aligned = pd.concat([aligned.reset_index(drop=True), diagnostics], axis=1)
         aligned["good"] = _good(FINAL_RULE, aligned, x_bps, horizon, rates[corridor]).fillna(False).astype(bool)
         aligned["closing"] = _closing(aligned).fillna(False).astype("int8")
+        facts = _positive_market_facts(
+            aligned.date,
+            aligned.target_source_quote_date,
+            calendar_source.loc[calendar_source.currency.eq(currency)],
+        )
+        aligned = pd.concat([aligned, facts], axis=1)
         aligned["label_rule"] = FINAL_RULE
         aligned["label_horizon_days"] = horizon
         aligned["label_x_bps"] = x_bps
@@ -329,12 +389,22 @@ def build_final_golden(
         raise ValueError("Duplicate date/corridor rows in final golden dataset")
     if result.date.dt.dayofweek.ge(5).any():
         raise ValueError("Weekend candidate leaked into final golden dataset")
-    if result[["date", "corridor", "rate", "good", "closing"]].isna().any().any():
+    fact_columns = [
+        "fact_decline_3_quotes",
+        "fact_weekly_gain_1pct",
+        "fact_low_percentile_30d",
+        "positive_market_fact",
+    ]
+    if result[["date", "corridor", "rate", "good", "closing", *fact_columns]].isna().any().any():
         raise ValueError("Null key/rate/label in final golden dataset")
     if (~result.closing.isin([0, 1])).any():
         raise ValueError("Closing target must contain only 0/1")
     if (result.good & result.closing.astype(bool)).any():
         raise ValueError("Good and closing targets must not overlap")
+    if not result[fact_columns].isin([0, 1]).all().all():
+        raise ValueError("Positive market fact flags must contain only 0/1")
+    if not result.positive_market_fact.eq(result[fact_columns[:-1]].any(axis=1).astype("int8")).all():
+        raise ValueError("Positive market fact union is inconsistent")
     return result
 
 
@@ -460,6 +530,7 @@ def main(argv: list[str] | None = None) -> int:
         rows=("good", "size"),
         good_days=("good", "sum"),
         closing_days=("closing", "sum"),
+        positive_market_fact_days=("positive_market_fact", "sum"),
     )
     print(f"PASS: final golden dataset -> {args.output}\n{counts.to_string()}")
     return 0

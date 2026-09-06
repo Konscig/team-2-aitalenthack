@@ -1,4 +1,4 @@
-"""Create zoomable SVG charts with golden good days and a thinned push stream."""
+"""Create zoomable SVG charts with golden labels and a prioritized push stream."""
 
 from __future__ import annotations
 
@@ -75,13 +75,21 @@ def select_pushes(frame: pd.DataFrame, *, cooldown_days: int = 4, weekly_cap: in
 def select_scenario_pushes(
     frame: pd.DataFrame, *, cooldown_days: int = 4, weekly_cap: int = 2
 ) -> tuple[pd.Series, pd.Series]:
-    """Select a causal combined stream, preferring good on same-day conflicts."""
+    """Select a causal stream with good, closing, then market-fact priority."""
     selected = pd.Series(False, index=frame.index, dtype=bool)
     scenario = pd.Series(pd.NA, index=frame.index, dtype="string")
     last_push: pd.Timestamp | None = None
     weekly_counts: dict[tuple[int, int], int] = {}
     for index, row in frame.sort_values("date").iterrows():
-        candidate = "good_now" if bool(row.good) else "window_closing" if bool(row.closing) else None
+        candidate = (
+            "good_now"
+            if bool(row.good)
+            else "window_closing"
+            if bool(row.closing)
+            else "positive_market_fact"
+            if bool(getattr(row, "positive_market_fact", False))
+            else None
+        )
         if candidate is None:
             continue
         date = pd.Timestamp(row.date)
@@ -372,7 +380,7 @@ def plot_scenario_review(
     cooldown_days: int,
     weekly_cap: int,
 ) -> tuple[Path, Path, Path]:
-    """Plot good/closing labels and their prioritized push stream."""
+    """Plot three scenario types and their prioritized push stream."""
     frame = pd.read_parquet(labels_path)
     frame["date"] = pd.to_datetime(frame.date)
     frame = (
@@ -382,7 +390,13 @@ def plot_scenario_review(
     )
     if frame.empty:
         raise ValueError(f"No rows for {corridor} in {start}..{end}")
-    missing = {"good", "closing"} - set(frame.columns)
+    fact_columns = [
+        "fact_decline_3_quotes",
+        "fact_weekly_gain_1pct",
+        "fact_low_percentile_30d",
+        "positive_market_fact",
+    ]
+    missing = {"good", "closing", *fact_columns} - set(frame.columns)
     if missing:
         raise ValueError(f"Canonical labels are missing columns: {sorted(missing)}")
     frame["push"], frame["push_scenario"] = select_scenario_pushes(
@@ -393,13 +407,15 @@ def plot_scenario_review(
 
     good = frame.good.astype(bool)
     closing = frame.closing.astype(bool)
+    facts = frame.positive_market_fact.astype(bool)
     overlap = good & closing
     pushes = frame.loc[frame.push]
     good_pushes = pushes.loc[pushes.push_scenario.eq("good_now")]
     closing_pushes = pushes.loc[pushes.push_scenario.eq("window_closing")]
+    fact_pushes = pushes.loc[pushes.push_scenario.eq("positive_market_fact")]
     observed_weeks = frame.date.dt.to_period("W-SUN").nunique()
 
-    scenario_top = 120
+    scenario_top = 174
     height = scenario_top + 2 * PANEL_HEIGHT + BOTTOM
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {height}" width="{WIDTH}" height="{height}">',
@@ -408,34 +424,40 @@ def plot_scenario_review(
         ".axis{stroke:#bfc9ca;stroke-width:1}.line{fill:none;stroke:#34495e;stroke-width:1.4}"
         ".good{fill:#e74c3c;fill-opacity:.72;stroke:white;stroke-width:.7}"
         ".closing{fill:#f39c12;fill-opacity:.72;stroke:white;stroke-width:.7}"
+        ".fact{stroke:#8e44ad;stroke-width:2.2}"
         ".push-good{fill:#1565c0;stroke:white;stroke-width:1.2}"
-        ".push-closing{fill:#00897b;stroke:white;stroke-width:1.2}</style>",
+        ".push-closing{fill:#00897b;stroke:white;stroke-width:1.2}"
+        ".push-fact{fill:#8e44ad;stroke:white;stroke-width:1.2}</style>",
         f'<text x="{LEFT}" y="28" font-size="20" font-weight="600">'
-        f"{escape(corridor)} · ретроспективная разметка good + closing</text>",
-        f'<text x="{LEFT}" y="48" font-size="12">'
-        "good=1: курс не более чем на 1% выше минимума в [T−10; T+10]. "
+        f"{escape(corridor)} · good + closing + positive market facts</text>",
+        f'<text x="{LEFT}" y="48" font-size="12">good=1: курс не более чем на 1% выше минимума в [T−10; T+10].</text>',
+        f'<text x="{LEFT}" y="66" font-size="12">'
         f"closing=1: good=0; курс >{CLOSING_MIN_REBOUND_BPS / 100:.0f}%, но ≤"
         f"{CLOSING_MAX_REBOUND_BPS / 100:.0f}% выше минимума предыдущих {CLOSING_HORIZON_DAYS} дней.</text>",
-        f'<text x="{LEFT}" y="66" font-size="12">'
+        f'<text x="{LEFT}" y="84" font-size="12">'
         f"Hindsight для closing: медиана следующих {CLOSING_HORIZON_DAYS} календарных дней "
         f"минимум на {CLOSING_MIN_FUTURE_MEDIAN_RISE_BPS / 100:.0f}% выше курса T.</text>",
-        f'<text x="{LEFT}" y="84" font-size="12">'
-        f"Политика: good приоритетнее при конфликте в один день; cooldown {cooldown_days} дня; "
+        f'<text x="{LEFT}" y="102" font-size="12">'
+        "fact: снижение 3 обновления подряд ИЛИ улучшение ≥1% за 7 дней ИЛИ "
+        "курс выгоднее 90% предыдущих 30 дней.</text>",
+        f'<text x="{LEFT}" y="120" font-size="12">'
+        f"Политика: good → closing → fact; cooldown {cooldown_days} дня; "
         f"не более {weekly_cap} push в неделю.</text>",
-        f'<text x="{LEFT}" y="102" font-size="11">'
+        f'<text x="{LEFT}" y="138" font-size="11">'
         "Красный круг — good; оранжевый треугольник — closing; "
-        "синий ромб — push good; зелёный ромб — push closing.</text>",
+        "фиолетовый крест — fact. Ромбы: синий good, зелёный closing, фиолетовый fact.</text>",
     ]
 
     panels = (
         (
             f"Все размеченные дни · good: {int(good.sum())} · closing: {int(closing.sum())} · "
-            f"пересечение: {int(overlap.sum())}",
+            f"fact: {int(facts.sum())} · пересечение good/closing: {int(overlap.sum())}",
             False,
         ),
         (
             f"После коммуникационной политики · push: {len(pushes)} ({len(good_pushes)} good + "
-            f"{len(closing_pushes)} closing) · {len(pushes) / observed_weeks:.2f} в неделю",
+            f"{len(closing_pushes)} closing + {len(fact_pushes)} fact) · "
+            f"{len(pushes) / observed_weeks:.2f} в неделю",
             True,
         ),
     )
@@ -455,6 +477,25 @@ def plot_scenario_review(
             ]
         )
         if not push_panel:
+            for row in frame.loc[facts].itertuples(index=False):
+                x, y = x_scale(pd.Timestamp(row.date)), y_scale(float(row.rate))
+                size = 5
+                active = []
+                if row.fact_decline_3_quotes:
+                    active.append("decline_3_quotes")
+                if row.fact_weekly_gain_1pct:
+                    active.append("weekly_gain_1pct")
+                if row.fact_low_percentile_30d:
+                    active.append("low_percentile_30d")
+                tooltip = f"FACT {row.date:%Y-%m-%d}; {', '.join(active)}; rate={row.rate:.6g}"
+                parts.append(
+                    f'<g class="fact"><title>{escape(tooltip)}</title>'
+                    f'<line x1="{x - size:.1f}" y1="{y - size:.1f}" '
+                    f'x2="{x + size:.1f}" y2="{y + size:.1f}"/>'
+                    f'<line x1="{x - size:.1f}" y1="{y + size:.1f}" '
+                    f'x2="{x + size:.1f}" y2="{y - size:.1f}"/>'
+                    "</g>"
+                )
             for row in frame.loc[closing].itertuples(index=False):
                 x, y = x_scale(pd.Timestamp(row.date)), y_scale(float(row.rate))
                 size = 6
@@ -476,7 +517,11 @@ def plot_scenario_review(
                 x, y = x_scale(pd.Timestamp(row.date)), y_scale(float(row.rate))
                 size = 7
                 diamond = f"{x:.1f},{y - size:.1f} {x + size:.1f},{y:.1f} {x:.1f},{y + size:.1f} {x - size:.1f},{y:.1f}"
-                css = "push-good" if row.push_scenario == "good_now" else "push-closing"
+                css = {
+                    "good_now": "push-good",
+                    "window_closing": "push-closing",
+                    "positive_market_fact": "push-fact",
+                }[row.push_scenario]
                 tooltip = f"PUSH {row.push_scenario} {row.date:%Y-%m-%d}; rate={row.rate:.6g}"
                 parts.append(f'<polygon class="{css}" points="{diamond}"><title>{escape(tooltip)}</title></polygon>')
         for fraction, label in (
@@ -489,7 +534,7 @@ def plot_scenario_review(
     parts.append("</svg>")
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    stem = f"{corridor}__good-closing__h-10"
+    stem = f"{corridor}__good-closing-facts__h-10"
     chart_path = output_dir / f"{stem}.svg"
     schedule_path = output_dir / f"{stem}__schedule.csv"
     summary_path = output_dir / f"{stem}__summary.csv"
@@ -500,13 +545,14 @@ def plot_scenario_review(
         "rate",
         "good",
         "closing",
+        *fact_columns,
         "rebound_from_past_min_bps",
         "future_median_change_bps",
         "future_regret_bps",
         "push",
         "push_scenario",
     ]
-    frame.loc[good | closing | frame.push, export_columns].to_csv(schedule_path, index=False)
+    frame.loc[good | closing | facts | frame.push, export_columns].to_csv(schedule_path, index=False)
     week_counts = pushes.date.dt.to_period("W-SUN").value_counts()
     pd.DataFrame(
         [
@@ -517,10 +563,15 @@ def plot_scenario_review(
                 "observed_weeks": observed_weeks,
                 "good_days": int(good.sum()),
                 "closing_days": int(closing.sum()),
+                "positive_market_fact_days": int(facts.sum()),
+                "fact_decline_3_quotes_days": int(frame.fact_decline_3_quotes.sum()),
+                "fact_weekly_gain_1pct_days": int(frame.fact_weekly_gain_1pct.sum()),
+                "fact_low_percentile_30d_days": int(frame.fact_low_percentile_30d.sum()),
                 "overlap_days": int(overlap.sum()),
                 "pushes_total": len(pushes),
                 "pushes_good_now": len(good_pushes),
                 "pushes_closing": len(closing_pushes),
+                "pushes_positive_market_fact": len(fact_pushes),
                 "pushes_per_week": len(pushes) / observed_weeks,
                 "weeks_with_push": len(week_counts),
                 "weeks_with_two_pushes": int(week_counts.eq(2).sum()),
@@ -561,10 +612,12 @@ def write_scenario_portfolio_summary(
                 "corridor": corridor,
                 "good_days": int(frame.good.sum()),
                 "closing_days": int(frame.closing.sum()),
+                "positive_market_fact_days": int(frame.positive_market_fact.sum()),
                 "overlap_days": int((frame.good & frame.closing.astype(bool)).sum()),
                 "pushes_total": len(pushes),
                 "pushes_good_now": int(pushes.push_scenario.eq("good_now").sum()),
                 "pushes_closing": int(pushes.push_scenario.eq("window_closing").sum()),
+                "pushes_positive_market_fact": int(pushes.push_scenario.eq("positive_market_fact").sum()),
                 "pushes_per_week": len(pushes) / observed_weeks,
                 "weeks_with_push": len(week_counts),
                 "weeks_with_two_pushes": int(week_counts.eq(2).sum()),
@@ -572,7 +625,7 @@ def write_scenario_portfolio_summary(
             }
         )
     output_dir.mkdir(parents=True, exist_ok=True)
-    output = output_dir / "all_corridors__good-closing__h-10__summary.csv"
+    output = output_dir / "all_corridors__good-closing-facts__h-10__summary.csv"
     pd.DataFrame(rows).to_csv(output, index=False)
     return output
 

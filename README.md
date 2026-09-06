@@ -88,6 +88,21 @@ good = rate_T <= min_rate × (1 + 100 / 10 000)
 
 Значения должны рассчитываться на едином out-of-time периоде после фиксации правил каждого сценария. Средний uplift 3,93 выше относится к отдельному эксперименту с per-corridor good-day rules и поэтому не перенесён в таблицу.
 
+Полное описание происхождения, слоёв, размеров, semantics, проверок и ограничений приведено в [`docs/dataset_card.md`](docs/dataset_card.md).
+
+### Оценка алгоритмов сигналов
+
+Модель должна вернуть по каждой дате и коридору `good_pred` и `closing_pred`; probability/score и factual-кандидат необязательны. Один вызов применяет коммуникационную политику и считает classification, safety hit, экономическую выгоду, policy-matched random, частоту и кучность сразу для всех коридоров и `h = 1/3/5/10/20`:
+
+```python
+from src.backtest.metrics import evaluate_predictions
+
+result = evaluate_predictions(predictions, golden_labels, calendar)
+result.save("reports/evaluation/my_model")
+```
+
+Полный контракт таблиц, формулы и команды oracle/random sanity-check описаны в [`docs/metrics_methodology.md`](docs/metrics_methodology.md).
+
 ## 4. Основная продуктовая проработка
 
 - [исходная постановка и критерии кейса](docs/CASE.md);

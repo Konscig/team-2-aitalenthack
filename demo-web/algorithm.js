@@ -251,11 +251,10 @@ function signalCalculation(signal) {
 
 function sendAlgoPush(signal) {
   const item = ALGO_CORRIDORS[algoState.corridor];
-  const copy = PUSH_MESSAGES[signal.type];
-  const facts = signal.facts.length ? signal.facts.map((key) => FACT_MESSAGES[key]).join(' ') : 'Курс показывает положительную динамику.';
+  const copy = getPushCopy(signal.type, { ...item, facts: signal.facts });
   const toast = document.createElement('button');
   toast.className = 'push-toast';
-  toast.innerHTML = `<span class="push-app">A</span><span><strong>${copy.title}</strong><span>${copy.body({ ...item, fact: facts })}</span></span><small>сейчас</small>`;
+  toast.innerHTML = `<span class="push-app">A</span><span><strong>${copy.title}</strong><span>${copy.body}</span></span><small>сейчас</small>`;
   aq('#push-stack').prepend(toast);
   setTimeout(() => toast.remove(), 10000);
 }

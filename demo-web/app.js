@@ -155,11 +155,10 @@ function showSignal(signal) {
 
 function sendPush(signal) {
   const item = CORRIDORS[state.corridor];
-  const copy = PUSH_MESSAGES[signal.type];
-  const body = copy.body({ ...item, fact: factText(signal) });
+  const copy = getPushCopy(signal.type, { ...item, facts: signal.facts });
   const toast = document.createElement('button');
   toast.className = 'push-toast';
-  toast.innerHTML = `<span class="push-app">A</span><span><strong>${copy.title}</strong><span>${body}</span></span><small>сейчас</small>`;
+  toast.innerHTML = `<span class="push-app">A</span><span><strong>${copy.title}</strong><span>${copy.body}</span></span><small>сейчас</small>`;
   toast.addEventListener('click', () => { openDrawer(); toast.remove(); });
   $('#push-stack').prepend(toast);
   window.setTimeout(() => toast.remove(), 11000);

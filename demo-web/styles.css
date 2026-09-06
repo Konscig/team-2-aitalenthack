@@ -203,3 +203,69 @@ input, select { width: 100%; margin-top: 7px; padding: 14px; border: 1px solid #
   .algo-chart-wrap { height: 430px; margin: 0 6px; }.algo-footer { align-items: flex-start; flex-direction: column; }.algo-legend { margin-left: 0; justify-content: flex-start; }
   .algo-explain { grid-template-columns: 1fr; }.algo-explain article { min-height: auto; }
 }
+
+/* Compact presentation mode: keeps the whole interactive surface inside a 16:9 slide. */
+html.embed, html.embed body { width: 100%; height: 100%; overflow: hidden; }
+html.embed body { min-height: 0; font-size: 12px; }
+html.embed .topbar { height: 44px; gap: 12px; padding: 0 14px; }
+html.embed .brand-mark { width: 27px; height: 27px; font-size: 16px; }
+html.embed .brand small, html.embed .model-status { display: none; }
+html.embed .ghost { padding: 7px 10px; font-size: 11px; }
+html.embed .workspace { grid-template-columns: minmax(0, 1fr) 270px; gap: 8px; width: 100%; max-width: none; height: calc(100vh - 44px); padding: 8px; overflow: hidden; }
+html.embed .chart-card { height: 100%; min-height: 0; border-radius: 14px; }
+html.embed .chart-head { padding: 9px 14px 8px; }
+html.embed .chart-head h1 { font-size: 20px; }
+html.embed .eyebrow, html.embed .section-label { margin-bottom: 4px; font-size: 8px; }
+html.embed .live-pill { padding: 5px 8px; font-size: 9px; }
+html.embed .corridor-tabs { gap: 2px; padding: 0 9px 6px; }
+html.embed .corridor-tab { min-width: 92px; padding: 6px 8px; border-radius: 8px; }
+html.embed .corridor-tab strong { font-size: 11px; }
+html.embed .corridor-tab span { margin-top: 1px; font-size: 8px; }
+html.embed .ticker-row { min-height: 48px; gap: 16px; padding: 6px 14px; }
+html.embed .ticker-row > div:first-child strong { font-size: 12px; }
+html.embed .ticker-row > div:first-child span, html.embed .ticker-price span { font-size: 9px; }
+html.embed .ticker-price strong { font-size: 19px; }
+html.embed .range-picker button { min-width: 31px; padding: 5px 6px; font-size: 9px; }
+html.embed .chart-wrap { height: calc(100vh - 226px); min-height: 210px; margin: 0 7px; border-radius: 10px; }
+html.embed .legend { gap: 10px; padding: 7px 13px 9px; font-size: 9px; }
+html.embed .legend small { font-size: 8px; }
+html.embed .insights { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; gap: 8px; min-height: 0; overflow: hidden; }
+html.embed .signal-detail, html.embed .stats-card { min-height: 0; padding: 11px; border-radius: 13px; overflow: auto; }
+html.embed .empty-detail { min-height: 150px; }
+html.embed .empty-detail .radar-icon { width: 36px; height: 36px; border-radius: 10px; font-size: 20px; }
+html.embed .empty-detail h2 { margin: 8px 0 4px; font-size: 14px; }
+html.embed .empty-detail p, html.embed .detail-reason { font-size: 10px; }
+html.embed .detail-title { margin: 9px 0 5px; font-size: 15px; }
+html.embed .metric-row { gap: 5px; }
+html.embed .metric { padding: 7px; }
+html.embed .metric span { font-size: 7px; }
+html.embed .metric strong { margin-top: 3px; font-size: 11px; }
+html.embed .detail-note, html.embed .logic-card { display: none; }
+html.embed .big-stat { margin: 8px 0 9px; }
+html.embed .big-stat strong { font-size: 25px; }
+html.embed .big-stat span { font-size: 9px; }
+html.embed .stat-grid > div { padding: 6px; }
+html.embed .stat-grid strong { margin: 4px 0 1px; font-size: 13px; }
+html.embed .stat-grid span, html.embed .policy { font-size: 7px; }
+html.embed .policy { gap: 4px 7px; margin-top: 8px; padding-top: 7px; }
+html.embed .push-stack { top: 8px; width: min(360px, calc(100% - 20px)); }
+html.embed .push-toast { padding: 9px; border-radius: 12px; }
+
+html.embed .algo-workspace { width: 100%; max-width: none; height: calc(100vh - 44px); padding: 8px; overflow: hidden; }
+html.embed .algo-intro, html.embed .algo-explain { display: none; }
+html.embed .algo-card { height: 100%; border-radius: 14px; }
+html.embed .algo-tabs { padding-top: 7px; }
+html.embed .stage-strip { gap: 6px; padding: 9px 13px; }
+html.embed .stage { gap: 5px; }
+html.embed .stage > span { width: 21px; height: 21px; font-size: 8px; }
+html.embed .stage b { font-size: 9px; }
+html.embed .stage small { font-size: 7px; }
+html.embed .stage-formula { display: none; }
+html.embed .algo-status { min-height: 49px; padding: 7px 14px; }
+html.embed .algo-status b { font-size: 11px; }
+html.embed .algo-status small, html.embed .stage-counter { font-size: 8px; }
+html.embed .algo-chart-wrap { height: calc(100vh - 218px); min-height: 225px; margin: 0 7px; border-radius: 10px; }
+html.embed .algo-footer { gap: 12px; padding: 8px 13px 10px; }
+html.embed .algorithm-rule span { font-size: 7px; }
+html.embed .algorithm-rule b { margin-top: 2px; font-size: 9px; }
+html.embed .algo-legend { gap: 7px; font-size: 8px; }

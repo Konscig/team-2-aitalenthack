@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Rubik+Mono+One&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260907-2">
+  <link rel="stylesheet" href="styles.css?v=20260907-3">
 </head>
 <body>
   <main class="stage" aria-label="Презентация команды 2">
@@ -67,10 +67,10 @@
     <section class="slide" data-slide="7" aria-label="Ограничения">
       <div class="slide-no">7</div><h2>ОГРАНИЧЕНИЯ</h2>
       <div class="split limitations">
-        <article><h3>ТАЙМФРЕЙМЫ</h3><p>В PoC используются дневные котировки. Они не показывают движение курса внутри дня, поэтому момент отправки push определяется с точностью до дня.</p></article>
-        <article><h3>СКУДНОСТЬ ДАННЫХ</h3><p>В текущем наборе нет котировки нефти <b>URALS</b> и части внешних факторов, которые могут объяснять движение валютных коридоров.</p></article>
+        <article><h3>ТАЙМФРЕЙМЫ</h3><p>Дневные котировки не показывают движение курса внутри дня. Момент отправки push определяется с точностью до дня.</p><h3 class="limitation-subhead">КОТИРОВКА URALS</h3><p>Без неё модель не проверяет связь валютных коридоров с динамикой российской экспортной нефти.</p></article>
+        <article><h3>НЕДОСТАЮЩИЕ ПРИЗНАКИ</h3><ul class="limitation-list"><li><b>Фьючерсы и опционы.</b> Не видим ожидания рынка и изменение оценки риска.</li><li><b>Объёмы.</b> Не можем отличить движение, подтверждённое активностью рынка, от шума и низкой ликвидности.</li><li><b>Новостной фон.</b> Не фиксируем события, поэтому устойчивый сигнал может смешиваться с краткой реакцией на новость.</li></ul></article>
       </div>
-      <p class="limitation-next"><b>Что добавим:</b> URALS и дополнительные таймфреймы, включая часовой. Это позволит точнее выбирать время отправки push.</p>
+      <p class="limitation-next"><b>Следующий этап:</b> часовые таймфреймы, URALS, данные деривативов, объёмы и событийные метки. Так мы точнее выберем и обоснуем момент отправки push.</p>
     </section>
 
     <section class="slide" data-slide="8" aria-label="Результаты">

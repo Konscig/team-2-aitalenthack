@@ -1,0 +1,2 @@
+corridor,start,end,observed_weeks,good_days,closing_days,positive_market_fact_days,fact_decline_3_quotes_days,fact_weekly_gain_1pct_days,fact_low_percentile_30d_days,overlap_days,pushes_total,pushes_good_now,pushes_closing,pushes_positive_market_fact,pushes_per_week,weeks_with_push,weeks_with_two_pushes,cooldown_calendar_days,weekly_cap
+TJS_RUB,2025-07-01,2026-07-31,57,72,22,101,44,82,55,0,53,26,6,21,0.9298245614035088,42,11,4,2

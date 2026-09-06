@@ -27,6 +27,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .model-status span { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px #38d58b99; }
 .ghost { padding: 10px 14px; border: 1px solid #363943; border-radius: 11px; background: #17191f; font-weight: 700; font-size: 13px; }
 .ghost:hover { background: #20232a; }
+.nav-link { color: #f5f5f7; text-decoration: none; }
 
 .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 16px; max-width: 1600px; margin: 0 auto; padding: 20px; }
 .chart-card, .signal-detail, .stats-card, .logic-card { border: 1px solid #262932; background: rgba(16,18,23,.96); box-shadow: 0 18px 60px #0004; }
@@ -79,6 +80,7 @@ h1 { margin: 0; font-size: clamp(24px, 2.3vw, 34px); letter-spacing: -.045em; }
 .legend small { margin-left: auto; color: #696d77; }
 .dot { display: inline-block; width: 8px; height: 8px; border-radius: 3px; }
 .dot.good { background: var(--green); }.dot.closing { background: var(--amber); }.dot.fact { background: var(--blue); }
+.dot.candidate { background: #d9dce4; box-shadow: 0 0 0 3px #d9dce422; }
 
 .insights { display: grid; align-content: start; gap: 16px; }
 .signal-detail, .stats-card, .logic-card { border-radius: 19px; padding: 19px; }
@@ -134,11 +136,58 @@ input, select { width: 100%; margin-top: 7px; padding: 14px; border: 1px solid #
 .primary { width: 100%; margin-top: 18px; padding: 14px; border: 0; border-radius: 12px; background: var(--red); color: white; font-weight: 800; }
 .disclaimer { color: #777b85; font-size: 11px; text-align: center; }
 
+.algo-page { background: radial-gradient(circle at 50% -25%, #321416 0, #08090c 34rem); }
+.algo-workspace { max-width: 1500px; margin: 0 auto; padding: 26px 24px 40px; }
+.algo-intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin: 8px 0 22px; }
+.algo-intro h1 { font-size: clamp(30px, 4vw, 52px); }
+.algo-intro p:not(.eyebrow) { max-width: 700px; margin: 10px 0 0; color: #999da8; font-size: 16px; line-height: 1.5; }
+.replay-button { flex: none; padding: 12px 16px; border: 1px solid #3b3e48; border-radius: 12px; background: #181a20; font-weight: 750; }
+.replay-button:hover { background: #22252d; }.replay-button span { display: inline-block; margin-right: 5px; font-size: 18px; }
+.algo-card { overflow: hidden; border: 1px solid #2a2d35; border-radius: 22px; background: rgba(16,18,23,.97); box-shadow: 0 24px 80px #0005; }
+.algo-tabs { padding-top: 14px; }
+.stage-strip { display: grid; grid-template-columns: auto 1fr auto 1fr auto 1fr auto 1fr auto; align-items: center; gap: 10px; padding: 18px 24px; border-bottom: 1px solid #292c34; background: #0d0f13; }
+.stage { position: relative; display: flex; align-items: center; gap: 9px; color: #676b76; transition: color .35s; }
+.stage > span { display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid #343741; border-radius: 50%; font-size: 11px; font-weight: 850; transition: border-color .35s, background .35s, box-shadow .35s; }
+.stage b, .stage small { display: block; white-space: nowrap; }.stage b { font-size: 12px; }.stage small { margin-top: 2px; font-size: 10px; }
+.stage.active { color: #fff; }.stage.active > span { border-color: var(--red); background: var(--red); box-shadow: 0 0 18px #f13c3266; }
+.stage.done { color: #a4a8b2; }.stage.done > span { border-color: #38d58b66; background: #183326; color: var(--green); }
+.stage-formula { position: absolute; z-index: 14; bottom: calc(100% + 13px); left: 13px; width: max-content; max-width: 280px; padding: 7px 9px; border: 1px solid #f13c3255; border-radius: 8px; background: #211517f2; box-shadow: 0 9px 24px #0008; color: #ffaaa5; font: 500 10px/1.25 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: -.02em; animation: formula-in .35s ease-out; }
+.stage-formula::after { content: ''; position: absolute; top: 100%; left: 12px; border: 5px solid transparent; border-top-color: #f13c3255; }
+.stage[data-stage="closing"] .stage-formula { right: 0; left: auto; }
+.stage[data-stage="closing"] .stage-formula::after { right: 12px; left: auto; }
+@keyframes formula-in { from { opacity: 0; transform: translateY(5px); } }
+.stage-strip > i { height: 1px; background: #2c2f37; transition: background .5s; }.stage-strip > i.done { background: var(--green); }
+.algo-status { min-height: 78px; display: flex; align-items: center; gap: 13px; padding: 13px 26px; }
+.algo-status b, .algo-status small { display: block; }.algo-status b { font-size: 15px; }.algo-status small { margin-top: 4px; color: #858995; font-size: 12px; }
+.pulse-ring { width: 12px; height: 12px; border: 3px solid #ff756f; border-radius: 50%; box-shadow: 0 0 0 6px #f13c3218; animation: pulse-ring 1.3s ease-out infinite; }
+.stage-counter { margin-left: auto; color: #777b85; font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+@keyframes pulse-ring { 50% { box-shadow: 0 0 0 11px #f13c3200; } }
+.algo-chart-wrap { position: relative; height: clamp(430px, 58vh, 650px); margin: 0 14px; overflow: hidden; border: 1px solid #23262d; border-radius: 15px; background: #0b0d11; }
+#algo-chart, .algo-marker-layer { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.algo-marker-layer { pointer-events: none; }
+.algo-marker { position: absolute; z-index: 3; display: grid; place-items: center; width: 22px; height: 22px; padding: 0; border: 2px solid #0b0d11; border-radius: 50%; background: #d9dce4; color: #111318; transform: translate(-50%, -50%); opacity: 0; pointer-events: auto; transition: left .9s cubic-bezier(.22,.78,.22,1), top .9s cubic-bezier(.22,.78,.22,1), opacity .45s, background .45s, border-radius .45s, transform .18s, box-shadow .18s; }
+.algo-marker span { line-height: 1; transform: translateY(-1px); }
+.algo-marker.good, .algo-marker.fact, .algo-marker.closing { border-radius: 7px; }
+.algo-marker.good { background: var(--green); }.algo-marker.fact { background: var(--blue); }.algo-marker.closing { background: var(--amber); }
+.algo-marker:disabled { cursor: default; }.algo-marker:not(:disabled):hover, .algo-marker:not(:disabled):focus-visible { z-index: 8; transform: translate(-50%, -50%) scale(1.3); box-shadow: 0 0 0 5px #ffffff18, 0 0 26px currentColor; }
+.algo-marker.no-transition { transition: none; }
+.algo-hover { position: absolute; z-index: 12; min-width: 195px; padding: 10px 12px; border: 1px solid #3d414b; border-radius: 10px; background: #1a1d24ef; box-shadow: 0 12px 30px #0009; pointer-events: none; }
+.algo-hover strong, .algo-hover span { display: block; }.algo-hover strong { font-size: 12px; }.algo-hover span { margin-top: 4px; color: #a1a5af; font-size: 11px; }
+.algo-hover code { display: block; margin-top: 7px; padding-top: 7px; border-top: 1px solid #343741; color: #777c87; font: 500 10px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.algo-footer { display: flex; align-items: center; gap: 22px; padding: 16px 25px 20px; }
+.algorithm-rule { min-width: 0; }.algorithm-rule span, .algorithm-rule b { display: block; }.algorithm-rule span { color: #70747f; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }.algorithm-rule b { margin-top: 5px; overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.algo-legend { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 13px; color: #858995; font-size: 11px; }.algo-legend span { display: flex; align-items: center; gap: 6px; }
+.algo-explain { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
+.algo-explain article { min-height: 145px; padding: 18px; border: 1px solid #282b33; border-radius: 16px; background: #111318; }
+.algo-explain article > span { color: var(--red); font-size: 11px; font-weight: 850; letter-spacing: .1em; }.algo-explain h2 { margin: 18px 0 7px; font-size: 18px; }.algo-explain p { margin: 0; color: #858995; font-size: 13px; line-height: 1.45; }
+
 @media (max-width: 1050px) {
   .workspace { grid-template-columns: 1fr; }
   .insights { grid-template-columns: repeat(2, 1fr); }
   .signal-detail { grid-row: span 2; }
   .chart-card { min-height: auto; }
+  .stage div { display: none; }.stage-strip { grid-template-columns: auto 1fr auto 1fr auto 1fr auto 1fr auto; }.stage-formula { left: 0; max-width: 220px; }
+  .algo-explain { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 700px) {
   .topbar { height: 64px; padding: 0 14px; }.model-status { display: none; }.ghost { margin-left: auto; font-size: 0; }.ghost::after { content: 'Перевод'; font-size: 12px; }
@@ -147,4 +196,10 @@ input, select { width: 100%; margin-top: 7px; padding: 14px; border: 1px solid #
   .ticker-row { align-items: flex-start; flex-wrap: wrap; gap: 10px 20px; padding: 12px 16px; }.range-picker { width: 100%; margin-left: 0; }.range-picker button { flex: 1; }
   .chart-wrap { height: 440px; margin: 0 6px; }.legend { gap: 10px 14px; padding: 14px 16px; }.legend small { width: 100%; margin: 2px 0 0; }
   .insights { grid-template-columns: 1fr; }.signal-detail { grid-row: auto; }
+  .topbar .nav-link { margin-left: auto; }.topbar .nav-link + .ghost { display: none; }
+  .algo-workspace { padding: 18px 10px 30px; }.algo-intro { align-items: flex-start; }.algo-intro p:not(.eyebrow) { font-size: 14px; }.replay-button { padding: 10px 12px; font-size: 12px; }
+  .stage-strip { gap: 6px; padding: 14px 12px; }.stage > span { width: 24px; height: 24px; }.algo-status { padding-inline: 15px; }.algo-status small { max-width: 230px; }
+  .stage-formula { display: none; }
+  .algo-chart-wrap { height: 430px; margin: 0 6px; }.algo-footer { align-items: flex-start; flex-direction: column; }.algo-legend { margin-left: 0; justify-content: flex-start; }
+  .algo-explain { grid-template-columns: 1fr; }.algo-explain article { min-height: auto; }
 }

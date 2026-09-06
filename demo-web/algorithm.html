@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Пошаговая демонстрация алгоритма сигналов выгодного момента">
+  <title>Как работает алгоритм — Радар момента</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="algo-page">
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-mark">A</span><span>Радар момента</span><small>demo</small></a>
+    <div class="model-status"><span></span> Golden labels · алгоритм в действии</div>
+    <a class="ghost nav-link" href="index.html">← К радару</a>
+  </header>
+
+  <main class="algo-workspace">
+    <section class="algo-intro">
+      <div>
+        <p class="eyebrow">ПОШАГОВАЯ ДЕМОНСТРАЦИЯ</p>
+        <h1>Как ряд превращается в сигналы</h1>
+        <p>Алгоритм последовательно находит выгодные моменты, подтверждает факты и отмечает закрывающееся окно.</p>
+      </div>
+      <button class="replay-button" id="replay"><span>↻</span> Повторить</button>
+    </section>
+
+    <section class="algo-card">
+      <nav class="corridor-tabs algo-tabs" id="algo-tabs" aria-label="Коридоры переводов"></nav>
+
+      <div class="stage-strip" id="stage-strip" aria-live="polite">
+        <div class="stage active" data-stage="line"><span>1</span><div><b>Курс</b><small>Исходный ряд</small></div></div>
+        <i></i>
+        <div class="stage" data-stage="lows"><span>2</span><div><b>Кандидаты</b><small>Точки в лоях</small></div></div>
+        <i></i>
+        <div class="stage" data-stage="good"><span>3</span><div><b>Good</b><small>Выгодный момент</small></div></div>
+        <i></i>
+        <div class="stage" data-stage="fact"><span>4</span><div><b>Fact</b><small>Рыночный факт</small></div></div>
+        <i></i>
+        <div class="stage" data-stage="closing"><span>5</span><div><b>Closing</b><small>Окно закрывается</small></div></div>
+      </div>
+
+      <div class="algo-status">
+        <span class="pulse-ring"></span>
+        <div><b id="stage-title">Загружаем курс без разметки</b><small id="stage-copy">Сначала видим только исторический ряд.</small></div>
+        <span class="stage-counter" id="stage-counter">01 / 05</span>
+      </div>
+
+      <div class="algo-chart-wrap" id="algo-chart-wrap">
+        <canvas id="algo-chart" aria-label="Анимация работы алгоритма"></canvas>
+        <div class="algo-marker-layer" id="algo-marker-layer"></div>
+        <div class="algo-hover" id="algo-hover" hidden></div>
+      </div>
+
+      <div class="algo-footer">
+        <div class="algorithm-rule" id="algorithm-rule"><span>Текущий шаг</span><b>Строим исторический ряд курса</b></div>
+        <div class="algo-legend">
+          <span><i class="dot candidate"></i> кандидат</span><span><i class="dot good"></i> good</span><span><i class="dot fact"></i> fact</span><span><i class="dot closing"></i> closing</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="algo-explain">
+      <article><span>01</span><h2>Good</h2><p>Курс не дальше 1% от минимума в окне ±10 календарных дней.</p></article>
+      <article><span>02</span><h2>Fact</h2><p>Наблюдаемый факт: снижение три раза, улучшение за неделю или нижние 10% месяца.</p></article>
+      <article><span>03</span><h2>Closing</h2><p>Курс вышел из good-зоны, но окно ещё не закрылось окончательно.</p></article>
+      <article><span>04</span><h2>Политика</h2><p>Приоритет good → closing → fact, cooldown 4 дня и максимум 2 push в неделю.</p></article>
+    </section>
+  </main>
+
+  <div class="push-stack" id="push-stack" aria-live="polite"></div>
+  <script src="push-messages.js"></script>
+  <script src="data.js"></script>
+  <script src="algorithm.js"></script>
+</body>
+</html>

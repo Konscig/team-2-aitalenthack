@@ -11,6 +11,9 @@ python3 -m http.server 8080 --directory demo-web
 
 Открыть: `http://localhost:8080`.
 
+Страница с пошаговой демонстрацией алгоритма:
+`http://localhost:8080/algorithm.html`.
+
 Обновить данные после пересборки `golden_labels.parquet`:
 
 ```bash

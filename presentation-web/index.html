@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Rubik+Mono+One&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260907-4">
+  <link rel="stylesheet" href="styles.css?v=20260907-5">
 </head>
 <body>
   <main class="stage" aria-label="Презентация команды 2">
@@ -53,8 +53,8 @@
     <section class="slide" data-slide="5" aria-label="Runtime-сигналы">
       <div class="slide-no">5</div><h2>RUNTIME-СИГНАЛЫ</h2>
       <div class="split runtime">
-        <article><h3>CatBoost Classifier</h3><p>Две ML-модели без заглядывания вперёд предсказывают <b>good day</b> и <b>closing window</b> на размеченных данных.<br><b>Market fact</b> задаётся правилами. Политика коммуникаций ограничивает частоту push.</p><table><thead><tr><th>сигнал</th><th>precision</th><th>F<sub>0,5</sub></th><th>lift</th><th>hit rate</th></tr></thead><tbody><tr><td>good</td><td></td><td></td><td></td><td></td></tr><tr><td>closing</td><td></td><td></td><td></td><td></td></tr><tr><td>fact</td><td></td><td></td><td></td><td></td></tr></tbody></table></article>
-        <article><h3>Time-series predict</h3><p>Модель прогнозирует курс на ближайшие <b>10 дней</b>.<br>По прогнозу определяем, близок ли текущий день к <b>будущему локальному минимуму</b>.</p><table><thead><tr><th>сигнал</th><th>precision</th><th>F<sub>0,5</sub></th><th>lift</th><th>hit rate</th></tr></thead><tbody><tr><td>good</td><td>0,62</td><td>0,54</td><td>2,54</td><td>0,61</td></tr><tr><td>closing</td><td></td><td></td><td></td><td></td></tr><tr><td>fact</td><td>1,0</td><td>0,29</td><td>2,96</td><td>1,0</td></tr></tbody></table></article>
+        <article><h3>CatBoost Classifier</h3><p>Две ML-модели без заглядывания вперёд предсказывают <b>good day</b> и <b>closing window</b> на размеченных данных.<br><b>Market fact</b> задаётся правилами. Политика коммуникаций ограничивает частоту push.</p><table><thead><tr><th>тип</th><th>precision</th><th>F<sub>0,5</sub></th><th>lift</th><th>hit rate</th></tr></thead><tbody><tr><td>GOOD_<wbr>DAY</td><td>0.4255</td><td>0.2558</td><td>1.7608</td><td>0.4255</td></tr><tr><td>WINDOW_<wbr>CLOSING</td><td>0.1429</td><td>0.0625</td><td>2.3077</td><td>0.1429</td></tr><tr><td>POSITIVE_<wbr>MARKET_<wbr>FACT</td><td>1.0000</td><td>0.6055</td><td>2.9893</td><td>1.0000</td></tr></tbody></table></article>
+        <article><h3>Time-series predict</h3><p>Модель прогнозирует курс на ближайшие <b>10 дней</b>.<br>По прогнозу определяем, близок ли текущий день к <b>будущему локальному минимуму</b>.</p><table><thead><tr><th>тип</th><th>precision</th><th>F<sub>0,5</sub></th><th>lift</th><th>hit rate</th></tr></thead><tbody><tr><td>GOOD_<wbr>DAY</td><td>0.6053</td><td>0.5235</td><td>2.4722</td><td>0.6053</td></tr><tr><td>WINDOW_<wbr>CLOSING</td><td>0.0000</td><td>0.0000</td><td>0.0000</td><td>0.0000</td></tr><tr><td>POSITIVE_<wbr>MARKET_<wbr>FACT</td><td>1.0000</td><td>0.2550</td><td>2.9796</td><td>1.0000</td></tr></tbody></table></article>
       </div>
     </section>
 

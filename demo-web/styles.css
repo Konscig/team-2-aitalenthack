@@ -37,6 +37,9 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 h1 { margin: 0; font-size: clamp(24px, 2.3vw, 34px); letter-spacing: -.045em; }
 .live-pill { display: flex; gap: 8px; align-items: center; padding: 8px 11px; border: 1px solid #343740; border-radius: 99px; color: #9fa3ad; font-size: 12px; }
 .live-pill i { width: 6px; height: 6px; border-radius: 50%; background: #7f838e; }
+.chart-mode { display: flex; max-width: 470px; padding: 3px; border: 1px solid #343740; border-radius: 11px; background: #0d0f13; }
+.chart-mode button { padding: 8px 11px; border: 0; border-radius: 8px; background: transparent; color: #858995; font-size: 11px; font-weight: 760; white-space: nowrap; }
+.chart-mode button.active { background: #2a2d35; color: #fff; box-shadow: 0 2px 10px #0005; }
 
 .corridor-tabs { display: flex; gap: 3px; padding: 0 19px 12px; overflow-x: auto; border-bottom: 1px solid #292c34; scrollbar-width: none; }
 .corridor-tabs::-webkit-scrollbar { display: none; }
@@ -68,6 +71,10 @@ h1 { margin: 0; font-size: clamp(24px, 2.3vw, 34px); letter-spacing: -.045em; }
 .signal-marker.good { background: var(--green); }
 .signal-marker.closing { background: var(--amber); }
 .signal-marker.fact { background: var(--blue); }
+.signal-marker.predicted { border-color: #a98cff; background: #251d3a; color: #c9b8ff; box-shadow: 0 0 0 3px #a98cff24; }
+.signal-marker.golden { box-shadow: 0 0 0 3px #ffffff1a; }
+.signal-marker.today { z-index: 6; animation: today-signal 1.4s ease-in-out infinite; }
+@keyframes today-signal { 50% { box-shadow: 0 0 0 9px #38d58b00, 0 0 24px currentColor; } }
 .crosshair { position: absolute; inset: 0; pointer-events: none; }
 .crosshair span, .crosshair i { position: absolute; display: block; background: #8a8f9b55; }
 .crosshair span { top: 0; bottom: 0; width: 1px; }
@@ -81,6 +88,11 @@ h1 { margin: 0; font-size: clamp(24px, 2.3vw, 34px); letter-spacing: -.045em; }
 .dot { display: inline-block; width: 8px; height: 8px; border-radius: 3px; }
 .dot.good { background: var(--green); }.dot.closing { background: var(--amber); }.dot.fact { background: var(--blue); }
 .dot.candidate { background: #d9dce4; box-shadow: 0 0 0 3px #d9dce422; }
+.line-key { display: inline-block; width: 22px; height: 0; border-top: 2px solid; }
+.line-key.predicted { border-color: #a98cff; border-top-style: dashed; }
+.line-key.golden { border-color: #ff5a51; }
+.prediction-mode .range-picker { opacity: .28; pointer-events: none; }
+.replay-badge { background: #a98cff; color: #171020 !important; }
 
 .insights { display: grid; align-content: start; gap: 16px; }
 .signal-detail, .stats-card, .logic-card { border-radius: 19px; padding: 19px; }
@@ -191,7 +203,7 @@ input, select { width: 100%; margin-top: 7px; padding: 14px; border: 1px solid #
 }
 @media (max-width: 700px) {
   .topbar { height: 64px; padding: 0 14px; }.model-status { display: none; }.ghost { margin-left: auto; font-size: 0; }.ghost::after { content: 'Перевод'; font-size: 12px; }
-  .workspace { padding: 10px; }.chart-card { border-radius: 16px; }.chart-head { padding: 18px 16px 12px; }.live-pill { display: none; }
+  .workspace { padding: 10px; }.chart-card { border-radius: 16px; }.chart-head { align-items: stretch; flex-direction: column; gap: 12px; padding: 18px 16px 12px; }.live-pill { display: none; }.chart-mode { max-width: none; }.chart-mode button { flex: 1; white-space: normal; }
   .corridor-tabs { padding-inline: 11px; }.corridor-tab { min-width: 108px; }
   .ticker-row { align-items: flex-start; flex-wrap: wrap; gap: 10px 20px; padding: 12px 16px; }.range-picker { width: 100%; margin-left: 0; }.range-picker button { flex: 1; }
   .chart-wrap { height: 440px; margin: 0 6px; }.legend { gap: 10px 14px; padding: 14px 16px; }.legend small { width: 100%; margin: 2px 0 0; }
@@ -216,6 +228,8 @@ html.embed .workspace { grid-template-columns: minmax(0, 1fr) 270px; gap: 8px; w
 html.embed .chart-card { height: 100%; min-height: 0; border-radius: 14px; }
 html.embed .chart-head { padding: 9px 14px 8px; }
 html.embed .chart-head h1 { font-size: 20px; }
+html.embed .chart-mode { max-width: 330px; }
+html.embed .chart-mode button { padding: 5px 7px; font-size: 8px; }
 html.embed .eyebrow, html.embed .section-label { margin-bottom: 4px; font-size: 8px; }
 html.embed .live-pill { padding: 5px 8px; font-size: 9px; }
 html.embed .corridor-tabs { gap: 2px; padding: 0 9px 6px; }

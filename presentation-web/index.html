@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff8ef">
+  <title>Выгодный момент для перевода — команда 2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="stage" aria-label="Презентация команды 2">
+    <section class="slide cover active" data-slide="1" aria-label="Титульный слайд">
+      <h1>КАК ПОЙМАТЬ <em>ВЫГОДНЫЙ<br>МОМЕНТ</em> ДЛЯ ПЕРЕВОДА<br>ЗА РУБЕЖ.<br>СТРОИМ ТРИГГЕРНУЮ МОДЕЛЬ<br><em>ДЛЯ</em> ТРАНСГРАНИЧНЫХ<br><em>ПЕРЕВОДОВ</em></h1>
+      <p class="credits">БАЛЬБА ДАРЬЯ · СОКОЛОВ ФЕДОР · ГЕРАСИМОВ КОНСТАНТИН<br>КЕЙС ОТ <em>«АЛЬФА БАНК»</em><br>КОМАНДА 2</p>
+    </section>
+
+    <section class="slide" data-slide="2" aria-label="Текущая ситуация">
+      <div class="slide-no">2</div><h2>AS <em>IS</em></h2>
+      <p class="subtitle">Клиент видит только текущий курс и сам выбирает день перевода</p>
+      <div class="split metrics-slide">
+        <div><h3>КОНТЕКСТ СНГ 2025</h3><b class="mega">≈102 млрд ₽</b><strong>Узбекистан</strong><p>из России в среднем за месяц.</p><ul class="plain"><li><b>≈64 млрд ₽</b> Таджикистан;</li><li><b>≈27 млрд ₽</b> Армения;</li><li><b>≈22 млрд ₽</b> Кыргызстан;</li><li><b>≈724 млн ₽</b> Казахстан.</li></ul></div>
+        <div><b class="mega">≈22 тыс. ₽</b><p>средний размер перевода;</p><b class="mega small">4</b><p>среднее количество переводов в месяц от одного клиента.</p><small>2025. Пересчёт по среднему курсу ЦБ за 2025.</small></div>
+      </div>
+    </section>
+
+    <section class="slide" data-slide="3" aria-label="Продукт">
+      <div class="slide-no">3</div><h2>ПРОДУКТ</h2>
+      <div class="split product-top">
+        <article><h3>Как клиент</h3><blockquote>Я хочу получить информацию о выгодном для меня моменте для перевода за рубеж, без погружения в инфополе валюты.</blockquote></article>
+        <article><h3>Как бизнес</h3><blockquote>Я хочу повысить лояльность и интерес клиента за счёт сигналов о состоянии валюты и мотивации на переводы.</blockquote></article>
+      </div>
+      <div class="split product-bottom">
+        <ul class="benefits"><li>получает повод проверить актуальные условия перевода;</li><li>получает возможность зайти в благоприятный курс.</li></ul>
+        <ul class="benefits"><li>переводы получают больше LTV и кликов;</li><li>успешные сигналы повышают доверие к информации от банка;</li><li>FOMO клиента создаёт интерес к следующему сигналу.</li></ul>
+      </div>
+    </section>
+
+    <section class="slide" data-slide="4" aria-label="Момент для сигнала">
+      <div class="slide-no">4</div><h2><em>PoC:</em> МОМЕНТ ДЛЯ СИГНАЛА</h2>
+      <p class="subtitle compact">8 правил-гипотез → 5 окон → 3 значения б.п → <b>120</b> комбинаций.<br>Итог: близость к локальному минимуму в окне T±h (курс дня ± окно).</p>
+      <div class="three-col rules">
+        <article><h3>positive market<br>fact</h3><p>снижение курса <b>3 котировки</b> подряд;<br>улучшение курса за неделю <b>≥1%</b>;<br>курс не менее <b>90%</b> значений за <b>30 дней</b>.</p></article>
+        <article><h3><em>good</em> — ключевой<br>сигнал</h3><p>курс не более чем на <b>1%</b> хуже локального минимума в окне <b>±10 дней</b>.</p></article>
+        <article><h3>window closing</h3><p>курс на <b>1–2%</b> выше минимума прошлых <b>10 дней</b>.</p></article>
+      </div>
+      <p class="footnote">Ключевые метрики: Precision, F<sub>0,5</sub> (ставка на положительную коммуникацию), lift, hit rate</p>
+    </section>
+
+    <section class="slide" data-slide="5" aria-label="Runtime-сигналы">
+      <div class="slide-no">5</div><h2>RUNTIME-СИГНАЛЫ</h2>
+      <div class="split runtime">
+        <article><h3>Golden rules</h3><p>Сигналы по заранее заданным правилам на фактических данных.<br>Используем как эталон того, как должен выглядеть <b>«хороший момент»</b>.</p><table><thead><tr><th>сигнал</th><th>push/неделя</th></tr></thead><tbody><tr><td>good</td><td>0,5</td></tr><tr><td>closing</td><td>0,12</td></tr><tr><td>fact</td><td>0,4</td></tr></tbody></table></article>
+        <article><h3>Time-series predict</h3><p>Модель прогнозирует курс на ближайшие <b>10 дней</b>.<br>По прогнозу определяем, близок ли текущий день к <b>будущему локальному минимуму</b>.</p><table><thead><tr><th>сигнал</th><th>precision</th><th>F<sub>0,5</sub></th><th>lift</th><th>hit rate</th></tr></thead><tbody><tr><td>good</td><td>0,62</td><td>0,54</td><td>2,54</td><td>0,61</td></tr><tr><td>closing</td><td></td><td></td><td></td><td></td></tr><tr><td>fact</td><td>1,0</td><td>0,29</td><td>2,96</td><td>1,0</td></tr></tbody></table></article>
+      </div>
+    </section>
+
+    <section class="slide demo-slide" data-slide="6" aria-label="Интерактивное демо">
+      <div class="slide-no">6</div>
+      <div class="demo-head"><h2>DEMO</h2><div class="demo-tabs"><button class="demo-tab active" data-src="demo/index.html">Радар</button><button class="demo-tab" data-src="demo/algorithm.html">Алгоритм</button><a href="demo/index.html" target="_blank" rel="noopener">Открыть отдельно ↗</a></div></div>
+      <iframe id="demo-frame" src="demo/index.html" title="Интерактивное демо сигналов" loading="eager"></iframe>
+    </section>
+
+    <section class="slide" data-slide="7" aria-label="Результаты и планы">
+      <div class="slide-no">7</div><h2><em>РЕЗУЛЬТАТЫ</em> И TO BE</h2>
+      <div class="split results">
+        <article><h3>БЕНЧМАРК СИГНАЛА</h3><p>lift: <b>3,93×</b>;<br><b>0,92</b> push/нед;</p><p>F<sub>0,5</sub>: ;</p><p>Порог ≥1,3× пройден в <em>5 из 5</em> коридоров.</p></article>
+        <ul class="stars"><li>расширить базу параметров за счёт платных отчётов MOEX и финансовых инструментов;</li><li>по договорённости подключить персональный слой клиента и анализ новостного фона;</li><li>запустить пользовательское A/B-тестирование с разными вариантами пушей на пилоте.</li></ul>
+      </div>
+    </section>
+
+    <section class="slide" data-slide="8" aria-label="Команда">
+      <div class="slide-no">8</div><h2>В <em>ГЛАВНЫХ</em> РОЛЯХ…</h2>
+      <div class="team">
+        <article><img src="assets/darya.png" alt="Дарья Бальба"><h3>Бальба<br>Дарья<br>—<br><span>AI Engineer</span></h3></article>
+        <article><img src="assets/konstantin.png" alt="Константин Герасимов"><h3>Герасимов<br>Константин<br>—<br><span>AI Product Manager</span></h3></article>
+        <article><img src="assets/fedor.png" alt="Федор Соколов"><h3>Соколов<br>Федор<br>—<br><span>AI Engineer</span></h3></article>
+      </div>
+    </section>
+  </main>
+
+  <nav class="controls" aria-label="Навигация по слайдам">
+    <button id="prev" aria-label="Предыдущий слайд">←</button><span id="counter">1 / 8</span><button id="next" aria-label="Следующий слайд">→</button><button id="fullscreen" aria-label="Полноэкранный режим">⛶</button>
+  </nav>
+  <script src="app.js"></script>
+</body>
+</html>

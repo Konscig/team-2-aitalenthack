@@ -10,7 +10,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from src.build_golden_labels import HORIZONS, RULES
+from src.build_golden_labels import (
+    CLOSING_HORIZON_DAYS,
+    CLOSING_MAX_REBOUND_BPS,
+    CLOSING_MIN_FUTURE_MEDIAN_RISE_BPS,
+    CLOSING_MIN_REBOUND_BPS,
+    HORIZONS,
+    RULES,
+)
 
 WIDTH = 1500
 PANEL_HEIGHT = 260
@@ -63,6 +70,30 @@ def select_pushes(frame: pd.DataFrame, *, cooldown_days: int = 4, weekly_cap: in
             last_push = date
             weekly_counts[week] = weekly_counts.get(week, 0) + 1
     return selected
+
+
+def select_scenario_pushes(
+    frame: pd.DataFrame, *, cooldown_days: int = 4, weekly_cap: int = 2
+) -> tuple[pd.Series, pd.Series]:
+    """Select a causal combined stream, preferring good on same-day conflicts."""
+    selected = pd.Series(False, index=frame.index, dtype=bool)
+    scenario = pd.Series(pd.NA, index=frame.index, dtype="string")
+    last_push: pd.Timestamp | None = None
+    weekly_counts: dict[tuple[int, int], int] = {}
+    for index, row in frame.sort_values("date").iterrows():
+        candidate = "good_now" if bool(row.good) else "window_closing" if bool(row.closing) else None
+        if candidate is None:
+            continue
+        date = pd.Timestamp(row.date)
+        iso = date.isocalendar()
+        week = (int(iso.year), int(iso.week))
+        cooldown_passed = last_push is None or (date - last_push).days >= cooldown_days
+        if cooldown_passed and weekly_counts.get(week, 0) < weekly_cap:
+            selected.loc[index] = True
+            scenario.loc[index] = candidate
+            last_push = date
+            weekly_counts[week] = weekly_counts.get(week, 0) + 1
+    return selected, scenario
 
 
 def _path(
@@ -166,7 +197,7 @@ def plot_rule(
     parts.append("</svg>")
     output_dir.mkdir(parents=True, exist_ok=True)
     output = output_dir / f"{corridor}__{rule}__x-{x_bps:03d}bps.svg"
-    output.write_text("\n".join(parts), encoding="utf-8")
+    output.write_text("\n".join(parts) + "\n", encoding="utf-8")
     return output
 
 
@@ -315,7 +346,7 @@ def plot_weekend_review(
     output_dir.mkdir(parents=True, exist_ok=True)
     chart_path = output_dir / f"{corridor}__near_local_min__h-{horizon:02d}__weekend-review.svg"
     data_path = output_dir / f"{corridor}__near_local_min__h-{horizon:02d}__weekend-review.csv"
-    chart_path.write_text("\n".join(parts), encoding="utf-8")
+    chart_path.write_text("\n".join(parts) + "\n", encoding="utf-8")
     source.loc[
         source.original_good,
         [
@@ -331,49 +362,294 @@ def plot_weekend_review(
     return chart_path, data_path
 
 
+def plot_scenario_review(
+    labels_path: Path,
+    output_dir: Path,
+    *,
+    corridor: str,
+    start: str,
+    end: str,
+    cooldown_days: int,
+    weekly_cap: int,
+) -> tuple[Path, Path, Path]:
+    """Plot good/closing labels and their prioritized push stream."""
+    frame = pd.read_parquet(labels_path)
+    frame["date"] = pd.to_datetime(frame.date)
+    frame = (
+        frame.loc[frame.corridor.eq(corridor) & frame.date.between(pd.Timestamp(start), pd.Timestamp(end))]
+        .sort_values("date")
+        .copy()
+    )
+    if frame.empty:
+        raise ValueError(f"No rows for {corridor} in {start}..{end}")
+    missing = {"good", "closing"} - set(frame.columns)
+    if missing:
+        raise ValueError(f"Canonical labels are missing columns: {sorted(missing)}")
+    frame["push"], frame["push_scenario"] = select_scenario_pushes(
+        frame,
+        cooldown_days=cooldown_days,
+        weekly_cap=weekly_cap,
+    )
+
+    good = frame.good.astype(bool)
+    closing = frame.closing.astype(bool)
+    overlap = good & closing
+    pushes = frame.loc[frame.push]
+    good_pushes = pushes.loc[pushes.push_scenario.eq("good_now")]
+    closing_pushes = pushes.loc[pushes.push_scenario.eq("window_closing")]
+    observed_weeks = frame.date.dt.to_period("W-SUN").nunique()
+
+    scenario_top = 120
+    height = scenario_top + 2 * PANEL_HEIGHT + BOTTOM
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {height}" width="{WIDTH}" height="{height}">',
+        '<rect width="100%" height="100%" fill="white"/>',
+        "<style>text{font-family:-apple-system,BlinkMacSystemFont,sans-serif;fill:#17202a}"
+        ".axis{stroke:#bfc9ca;stroke-width:1}.line{fill:none;stroke:#34495e;stroke-width:1.4}"
+        ".good{fill:#e74c3c;fill-opacity:.72;stroke:white;stroke-width:.7}"
+        ".closing{fill:#f39c12;fill-opacity:.72;stroke:white;stroke-width:.7}"
+        ".push-good{fill:#1565c0;stroke:white;stroke-width:1.2}"
+        ".push-closing{fill:#00897b;stroke:white;stroke-width:1.2}</style>",
+        f'<text x="{LEFT}" y="28" font-size="20" font-weight="600">'
+        f"{escape(corridor)} · ретроспективная разметка good + closing</text>",
+        f'<text x="{LEFT}" y="48" font-size="12">'
+        "good=1: курс не более чем на 1% выше минимума в [T−10; T+10]. "
+        f"closing=1: good=0; курс >{CLOSING_MIN_REBOUND_BPS / 100:.0f}%, но ≤"
+        f"{CLOSING_MAX_REBOUND_BPS / 100:.0f}% выше минимума предыдущих {CLOSING_HORIZON_DAYS} дней.</text>",
+        f'<text x="{LEFT}" y="66" font-size="12">'
+        f"Hindsight для closing: медиана следующих {CLOSING_HORIZON_DAYS} календарных дней "
+        f"минимум на {CLOSING_MIN_FUTURE_MEDIAN_RISE_BPS / 100:.0f}% выше курса T.</text>",
+        f'<text x="{LEFT}" y="84" font-size="12">'
+        f"Политика: good приоритетнее при конфликте в один день; cooldown {cooldown_days} дня; "
+        f"не более {weekly_cap} push в неделю.</text>",
+        f'<text x="{LEFT}" y="102" font-size="11">'
+        "Красный круг — good; оранжевый треугольник — closing; "
+        "синий ромб — push good; зелёный ромб — push closing.</text>",
+    ]
+
+    panels = (
+        (
+            f"Все размеченные дни · good: {int(good.sum())} · closing: {int(closing.sum())} · "
+            f"пересечение: {int(overlap.sum())}",
+            False,
+        ),
+        (
+            f"После коммуникационной политики · push: {len(pushes)} ({len(good_pushes)} good + "
+            f"{len(closing_pushes)} closing) · {len(pushes) / observed_weeks:.2f} в неделю",
+            True,
+        ),
+    )
+    for panel_index, (title, push_panel) in enumerate(panels):
+        y0 = scenario_top + panel_index * PANEL_HEIGHT + 28
+        y1 = scenario_top + (panel_index + 1) * PANEL_HEIGHT - 42
+        x0, x1 = LEFT, WIDTH - 70
+        points, x_scale, y_scale, low, high = _path(frame, x0, x1, y0, y1)
+        parts.extend(
+            [
+                f'<line class="axis" x1="{x0}" x2="{x0}" y1="{y0}" y2="{y1}"/>',
+                f'<line class="axis" x1="{x0}" x2="{x1}" y1="{y1}" y2="{y1}"/>',
+                f'<text x="{x0}" y="{y0 - 9}" font-size="14" font-weight="600">{escape(title)}</text>',
+                f'<text x="8" y="{y0 + 4}" font-size="11">{high:.5g}</text>',
+                f'<text x="8" y="{y1}" font-size="11">{low:.5g}</text>',
+                f'<polyline class="line" points="{points}"/>',
+            ]
+        )
+        if not push_panel:
+            for row in frame.loc[closing].itertuples(index=False):
+                x, y = x_scale(pd.Timestamp(row.date)), y_scale(float(row.rate))
+                size = 6
+                triangle = f"{x:.1f},{y - size:.1f} {x + size:.1f},{y + size:.1f} {x - size:.1f},{y + size:.1f}"
+                tooltip = (
+                    f"WINDOW CLOSING {row.date:%Y-%m-%d}; rate={row.rate:.6g}; "
+                    f"rebound={row.rebound_from_past_min_bps:.1f} bps; "
+                    f"future median change={row.future_median_change_bps:.1f} bps"
+                )
+                parts.append(f'<polygon class="closing" points="{triangle}"><title>{escape(tooltip)}</title></polygon>')
+            for row in frame.loc[good].itertuples(index=False):
+                x, y = x_scale(pd.Timestamp(row.date)), y_scale(float(row.rate))
+                tooltip = f"GOOD {row.date:%Y-%m-%d}; rate={row.rate:.6g}; regret={row.future_regret_bps:.1f} bps"
+                parts.append(
+                    f'<circle class="good" cx="{x:.1f}" cy="{y:.1f}" r="4"><title>{escape(tooltip)}</title></circle>'
+                )
+        else:
+            for row in pushes.itertuples(index=False):
+                x, y = x_scale(pd.Timestamp(row.date)), y_scale(float(row.rate))
+                size = 7
+                diamond = f"{x:.1f},{y - size:.1f} {x + size:.1f},{y:.1f} {x:.1f},{y + size:.1f} {x - size:.1f},{y:.1f}"
+                css = "push-good" if row.push_scenario == "good_now" else "push-closing"
+                tooltip = f"PUSH {row.push_scenario} {row.date:%Y-%m-%d}; rate={row.rate:.6g}"
+                parts.append(f'<polygon class="{css}" points="{diamond}"><title>{escape(tooltip)}</title></polygon>')
+        for fraction, label in (
+            (0, frame.date.min().strftime("%Y-%m")),
+            (0.5, frame.date.iloc[len(frame) // 2].strftime("%Y-%m")),
+            (1, frame.date.max().strftime("%Y-%m")),
+        ):
+            x = x0 + fraction * (x1 - x0)
+            parts.append(f'<text x="{x:.1f}" y="{y1 + 20}" font-size="11" text-anchor="middle">{label}</text>')
+    parts.append("</svg>")
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    stem = f"{corridor}__good-closing__h-10"
+    chart_path = output_dir / f"{stem}.svg"
+    schedule_path = output_dir / f"{stem}__schedule.csv"
+    summary_path = output_dir / f"{stem}__summary.csv"
+    chart_path.write_text("\n".join(parts) + "\n", encoding="utf-8")
+    export_columns = [
+        "date",
+        "corridor",
+        "rate",
+        "good",
+        "closing",
+        "rebound_from_past_min_bps",
+        "future_median_change_bps",
+        "future_regret_bps",
+        "push",
+        "push_scenario",
+    ]
+    frame.loc[good | closing | frame.push, export_columns].to_csv(schedule_path, index=False)
+    week_counts = pushes.date.dt.to_period("W-SUN").value_counts()
+    pd.DataFrame(
+        [
+            {
+                "corridor": corridor,
+                "start": frame.date.min().date(),
+                "end": frame.date.max().date(),
+                "observed_weeks": observed_weeks,
+                "good_days": int(good.sum()),
+                "closing_days": int(closing.sum()),
+                "overlap_days": int(overlap.sum()),
+                "pushes_total": len(pushes),
+                "pushes_good_now": len(good_pushes),
+                "pushes_closing": len(closing_pushes),
+                "pushes_per_week": len(pushes) / observed_weeks,
+                "weeks_with_push": len(week_counts),
+                "weeks_with_two_pushes": int(week_counts.eq(2).sum()),
+                "cooldown_calendar_days": cooldown_days,
+                "weekly_cap": weekly_cap,
+            }
+        ]
+    ).to_csv(summary_path, index=False)
+    return chart_path, schedule_path, summary_path
+
+
+def write_scenario_portfolio_summary(
+    labels_path: Path,
+    output_dir: Path,
+    *,
+    start: str,
+    end: str,
+    cooldown_days: int,
+    weekly_cap: int,
+) -> Path:
+    """Summarize the same prioritized policy for every corridor."""
+    source = pd.read_parquet(labels_path)
+    source["date"] = pd.to_datetime(source.date)
+    source = source.loc[source.date.between(pd.Timestamp(start), pd.Timestamp(end))].copy()
+    rows = []
+    for corridor, frame in source.groupby("corridor", sort=True):
+        frame = frame.sort_values("date").copy()
+        frame["push"], frame["push_scenario"] = select_scenario_pushes(
+            frame,
+            cooldown_days=cooldown_days,
+            weekly_cap=weekly_cap,
+        )
+        pushes = frame.loc[frame.push]
+        week_counts = pushes.date.dt.to_period("W-SUN").value_counts()
+        observed_weeks = frame.date.dt.to_period("W-SUN").nunique()
+        rows.append(
+            {
+                "corridor": corridor,
+                "good_days": int(frame.good.sum()),
+                "closing_days": int(frame.closing.sum()),
+                "overlap_days": int((frame.good & frame.closing.astype(bool)).sum()),
+                "pushes_total": len(pushes),
+                "pushes_good_now": int(pushes.push_scenario.eq("good_now").sum()),
+                "pushes_closing": int(pushes.push_scenario.eq("window_closing").sum()),
+                "pushes_per_week": len(pushes) / observed_weeks,
+                "weeks_with_push": len(week_counts),
+                "weeks_with_two_pushes": int(week_counts.eq(2).sum()),
+                "observed_weeks": observed_weeks,
+            }
+        )
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output = output_dir / "all_corridors__good-closing__h-10__summary.csv"
+    pd.DataFrame(rows).to_csv(output, index=False)
+    return output
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--labels-dir", default="data/labels/golden_review/2025-07-01_2026-07-31")
-    parser.add_argument("--output-dir", default="reports/golden_review/2025-07-01_2026-07-31")
+    parser.add_argument("--output-dir", default="reports/golden_labels")
     parser.add_argument("--corridor", default="TJS_RUB")
     parser.add_argument("--x-bps", type=int, choices=[25, 50, 100], default=100)
     parser.add_argument("--cooldown-days", type=int, default=4)
     parser.add_argument("--weekly-cap", type=int, default=2)
+    parser.add_argument("--canonical-labels", default="data/labels/golden_labels.parquet")
+    parser.add_argument("--start", default="2025-07-01")
+    parser.add_argument("--end", default="2026-07-31")
+    parser.add_argument(
+        "--review-grid",
+        action="store_true",
+        help="Also regenerate the exploratory good-rule grid and weekend review.",
+    )
     args = parser.parse_args(argv)
-    labels_dir = Path(args.labels_dir)
-    outputs = [
-        plot_rule(
-            labels_dir,
-            Path(args.output_dir),
-            rule=item.identifier,
-            corridor=args.corridor,
-            x_bps=args.x_bps,
-            cooldown_days=args.cooldown_days,
-            weekly_cap=args.weekly_cap,
+    output_dir = Path(args.output_dir)
+    review_outputs: list[Path] = []
+    if args.review_grid:
+        labels_dir = Path(args.labels_dir)
+        review_outputs.extend(
+            plot_rule(
+                labels_dir,
+                output_dir,
+                rule=item.identifier,
+                corridor=args.corridor,
+                x_bps=args.x_bps,
+                cooldown_days=args.cooldown_days,
+                weekly_cap=args.weekly_cap,
+            )
+            for item in RULES
         )
-        for item in RULES
-    ]
-    summaries = write_communication_review(
-        labels_dir,
-        Path(args.output_dir),
+        review_outputs.extend(
+            write_communication_review(
+                labels_dir,
+                output_dir,
+                corridor=args.corridor,
+                x_bps=args.x_bps,
+                cooldown_days=args.cooldown_days,
+                weekly_cap=args.weekly_cap,
+            )
+        )
+        review_outputs.extend(
+            plot_weekend_review(
+                labels_dir,
+                output_dir,
+                corridor=args.corridor,
+                horizon=10,
+                x_bps=args.x_bps,
+                cooldown_days=args.cooldown_days,
+                weekly_cap=args.weekly_cap,
+            )
+        )
+    scenario_review = plot_scenario_review(
+        Path(args.canonical_labels),
+        output_dir,
         corridor=args.corridor,
-        x_bps=args.x_bps,
+        start=args.start,
+        end=args.end,
         cooldown_days=args.cooldown_days,
         weekly_cap=args.weekly_cap,
     )
-    weekend_review = plot_weekend_review(
-        labels_dir,
-        Path(args.output_dir),
-        corridor=args.corridor,
-        horizon=10,
-        x_bps=args.x_bps,
+    portfolio_summary = write_scenario_portfolio_summary(
+        Path(args.canonical_labels),
+        output_dir,
+        start=args.start,
+        end=args.end,
         cooldown_days=args.cooldown_days,
         weekly_cap=args.weekly_cap,
     )
-    print(
-        f"PASS: {len(outputs) + 1} SVG charts + "
-        f"{len(summaries) + len(weekend_review) - 1} CSV files -> {args.output_dir}"
-    )
+    print(f"PASS: final chart and summaries -> {output_dir}")
+    print(*(str(path) for path in (*scenario_review, portfolio_summary, *review_outputs)), sep="\n")
     return 0
 
 

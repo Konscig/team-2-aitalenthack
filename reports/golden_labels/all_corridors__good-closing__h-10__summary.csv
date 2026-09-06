@@ -1,0 +1,6 @@
+corridor,good_days,closing_days,overlap_days,pushes_total,pushes_good_now,pushes_closing,pushes_per_week,weeks_with_push,weeks_with_two_pushes,observed_weeks
+AMD_RUB,90,15,0,42,37,5,0.7368421052631579,37,5,57
+KGS_RUB,94,11,0,38,36,2,0.6666666666666666,34,4,57
+KZT_RUB,66,16,0,37,32,5,0.6491228070175439,33,4,57
+TJS_RUB,72,22,0,36,31,5,0.631578947368421,33,3,57
+UZS_RUB,63,23,0,36,29,7,0.631578947368421,34,2,57

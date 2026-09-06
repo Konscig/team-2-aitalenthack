@@ -1,7 +1,7 @@
 import pandas as pd
 
+from src.backtest.policy import select_scenario_pushes
 from src.build_golden_labels import _closing, _positive_market_facts
-from src.visualize_golden_labels import select_scenario_pushes
 
 
 def test_closing_starts_strictly_above_good_tolerance():

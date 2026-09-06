@@ -1,0 +1,157 @@
+{
+  "selection_period": "VALIDATION_2025",
+  "selection_objective": "maximum precision per metrics_methodology.md",
+  "tie_break": [
+    "higher F0.5",
+    "higher classification lift",
+    "higher recall",
+    "simpler model"
+  ],
+  "thresholds": [
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8
+  ],
+  "test_used": false,
+  "random_baseline": {
+    "implementation": "src.backtest.metrics.evaluate_predictions",
+    "replicates": 1000,
+    "seed": 42,
+    "cooldown_days": 4,
+    "weekly_cap": 2,
+    "horizon_days": 10
+  },
+  "selected": {
+    "GOOD_DAY": {
+      "model": "CATBOOST",
+      "threshold": 0.8,
+      "validation_metrics": {
+        "predicted_positive": 161,
+        "true_positive": 86,
+        "false_positive": 75,
+        "false_negative": 250,
+        "precision": 0.5341614906832298,
+        "recall": 0.25595238095238093,
+        "F0_5": 0.4387755102040816,
+        "average_precision": 0.4681607571606073,
+        "classification_lift": 2.011054421768707,
+        "safety_hit_rate_h10": 0.46875,
+        "random_safety_hit_rate_h10": 0.47179687499999995,
+        "safety_lift_h10": 0.9935419771485346
+      }
+    },
+    "WINDOW_CLOSING": {
+      "model": "CATBOOST",
+      "threshold": 0.8,
+      "validation_metrics": {
+        "predicted_positive": 2,
+        "true_positive": 1,
+        "false_positive": 1,
+        "false_negative": 49,
+        "precision": 0.5,
+        "recall": 0.02,
+        "F0_5": 0.08620689655172414,
+        "average_precision": 0.15074212081917088,
+        "classification_lift": 12.65,
+        "safety_hit_rate_h10": 1.0,
+        "random_safety_hit_rate_h10": 0.5165,
+        "safety_lift_h10": 1.9361084220716362
+      }
+    }
+  },
+  "model_manifest": [
+    {
+      "target": "GOOD_DAY",
+      "corridor": "AMD_RUB",
+      "model": "CATBOOST",
+      "threshold": 0.8,
+      "path": "models/direct_signal_ml/good_day/AMD_RUB.joblib",
+      "train_end": "2024-12-20",
+      "feature_count": 36
+    },
+    {
+      "target": "GOOD_DAY",
+      "corridor": "KGS_RUB",
+      "model": "CATBOOST",
+      "threshold": 0.8,
+      "path": "models/direct_signal_ml/good_day/KGS_RUB.joblib",
+      "train_end": "2024-12-20",
+      "feature_count": 36
+    },
+    {
+      "target": "GOOD_DAY",
+      "corridor": "KZT_RUB",
+      "model": "CATBOOST",
+      "threshold": 0.8,
+      "path": "models/direct_signal_ml/good_day/KZT_RUB.joblib",
+      "train_end": "2024-12-20",
+      "feature_count": 36
+    },
+    {
+      "target": "GOOD_DAY",
+      "corridor": "TJS_RUB",
+      "model": "CATBOOST",
+      "threshold": 0.8,
+      "path": "models/direct_signal_ml/good_day/TJS_RUB.joblib",
+      "train_end": "2024-12-20",
+      "feature_count": 36
+    },
+    {
+      "target": "GOOD_DAY",
+      "corridor": "UZS_RUB",
+      "model": "CATBOOST",
+      "threshold": 0.8,
+      "path": "models/direct_signal_ml/good_day/UZS_RUB.joblib",
+      "train_end": "2024-12-20",
+      "feature_count": 36
+    },
+    {
+      "target": "WINDOW_CLOSING",
+      "corridor": "AMD_RUB",
+      "model": "CATBOOST",
+      "threshold": 0.8,
+      "path": "models/direct_signal_ml/window_closing/AMD_RUB.joblib",
+      "train_end": "2024-12-20",
+      "feature_count": 36
+    },
+    {
+      "target": "WINDOW_CLOSING",
+      "corridor": "KGS_RUB",
+      "model": "CATBOOST",
+      "threshold": 0.8,
+      "path": "models/direct_signal_ml/window_closing/KGS_RUB.joblib",
+      "train_end": "2024-12-20",
+      "feature_count": 36
+    },
+    {
+      "target": "WINDOW_CLOSING",
+      "corridor": "KZT_RUB",
+      "model": "CATBOOST",
+      "threshold": 0.8,
+      "path": "models/direct_signal_ml/window_closing/KZT_RUB.joblib",
+      "train_end": "2024-12-20",
+      "feature_count": 36
+    },
+    {
+      "target": "WINDOW_CLOSING",
+      "corridor": "TJS_RUB",
+      "model": "CATBOOST",
+      "threshold": 0.8,
+      "path": "models/direct_signal_ml/window_closing/TJS_RUB.joblib",
+      "train_end": "2024-12-20",
+      "feature_count": 36
+    },
+    {
+      "target": "WINDOW_CLOSING",
+      "corridor": "UZS_RUB",
+      "model": "CATBOOST",
+      "threshold": 0.8,
+      "path": "models/direct_signal_ml/window_closing/UZS_RUB.joblib",
+      "train_end": "2024-12-20",
+      "feature_count": 36
+    }
+  ]
+}

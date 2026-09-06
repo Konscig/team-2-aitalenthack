@@ -1,0 +1,3 @@
+policy,signals,precision,recall,F0_5,hit_rate,uplift
+OLD_CHRONOS_WINDOW_CLOSING,0.0,0.0,0.0,0.0,0.0,
+NEW_TIMESFM_WINDOW_CLOSING,2.0,0.0,0.0,0.0,0.0,0.0

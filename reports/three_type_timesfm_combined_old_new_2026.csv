@@ -1,0 +1,3 @@
+policy,total_pushes,combined_precision,mean_pushes_per_month,share_months_with_3plus
+OLD_CHRONOS,138,0.6739130434782609,3.45,0.825
+NEW_TIMESFM,134,0.6492537313432836,3.35,0.825

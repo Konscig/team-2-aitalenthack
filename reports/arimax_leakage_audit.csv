@@ -1,0 +1,10 @@
+check,passed
+no future exog,True
+frozen future exog = X_T,True
+no actual future rates inside forecast,True
+same temporal split,True
+validation-only selection,True
+test used once,True
+same forecast origins as baselines,True
+five forecasts from one origin,True
+intervals finite and ordered,True

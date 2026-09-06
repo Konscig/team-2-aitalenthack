@@ -1,0 +1,11 @@
+corridor,horizon,endpoint_better_than_naive,path_better_than_naive,future_best_better_than_naive,regret_better_than_naive,endpoint_vs_future_best_disagree
+AMD_RUB,5,False,False,False,False,False
+AMD_RUB,10,False,False,False,False,False
+KGS_RUB,5,False,False,False,False,False
+KGS_RUB,10,False,False,False,False,False
+KZT_RUB,5,True,True,True,True,False
+KZT_RUB,10,False,False,True,True,True
+TJS_RUB,5,False,False,False,False,False
+TJS_RUB,10,False,False,False,False,False
+UZS_RUB,5,False,False,False,False,False
+UZS_RUB,10,False,False,False,False,False

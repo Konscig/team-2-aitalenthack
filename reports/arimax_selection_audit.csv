@@ -1,0 +1,6 @@
+corridor,best_validation_Path_MAE_5,candidates_total,candidates_within_1pct,selected_order,selected_feature_set,selection_used_test
+AMD_RUB,0.003138197080291972,6,4,"(0,1,0)",SET_A,False
+KGS_RUB,0.013803997080291962,6,4,"(0,1,0)",SET_A,False
+KZT_RUB,0.002655728467153284,8,2,"(0,1,0)",SET_A,False
+TJS_RUB,0.11848117507728076,6,5,"(0,1,0)",SET_A,False
+UZS_RUB,9.759163503649632e-05,6,4,"(0,1,0)",SET_A,False

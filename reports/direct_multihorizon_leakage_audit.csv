@@ -1,0 +1,13 @@
+check,passed
+all X known at T,True
+no actual T+1...T+5 used as features,True
+no future exogenous variables used,True
+no shift(-N) features in X,True
+no future/regret/good_day/safe labels in X,True
+scaler fit train only,True
+temporal split only,True
+purge >= 5,True
+hyperparameters selected on validation only,True
+test used once,True
+actual future used only as target/evaluation,True
+same forecast origin across all 5 horizon models,True

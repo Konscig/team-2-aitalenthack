@@ -1,0 +1,11 @@
+check,passed
+same temporal split as previous experiment,True
+same test origins,True
+all X available at T,True
+no actual T+1...T+5 used in X,True
+no future-derived features,True
+validation-only tuning,True
+test locked,True
+purge >= 5,True
+targets only used as y,True
+no test-based feature selection,True

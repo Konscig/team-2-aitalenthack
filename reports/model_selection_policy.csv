@@ -1,0 +1,8 @@
+priority,rule,criterion
+1,eligibility,"finite validation metrics on common origins for H=1,3,5,10"
+2,primary_ranking,minimum validation RATE MAE at primary H=5
+3,long_horizon_tiebreak,minimum validation RATE MAE at H=10
+4,secondary_tiebreak,"minimum validation RATE RMSE at H=5, then lower p+q"
+5,promotion_guardrail,compare selected model with NAIVE at both H=5 and H=10
+6,diagnostic_only,H=1 and H=3 cannot select the winner on their own
+7,test_lock,"test metrics never select p,d,q or preprocessing"

@@ -1,0 +1,17 @@
+feature_set,feature,available_at_t,used,train_missing_share,exact_duplicate_of,correlated_with,correlation,reason
+SET_A,ret_1,True,True,0.0007564296520423601,,,,causal trailing/as-of feature
+SET_A,ret_3,True,True,0.0022692889561270802,,,,causal trailing/as-of feature
+SET_A,ret_5,True,True,0.0037821482602118004,,,,causal trailing/as-of feature
+SET_A,vol_20,True,True,0.015128593040847202,,,,causal trailing/as-of feature
+SET_A,dist_min_20,True,True,0.014372163388804841,,,,causal trailing/as-of feature
+SET_A,favourability_percentile_90,True,True,0.0680786686838124,,,,causal trailing/as-of feature
+SET_B,ret_1,True,True,0.0007564296520423601,,,,causal trailing/as-of feature
+SET_B,ret_3,True,True,0.0022692889561270802,,,,causal trailing/as-of feature
+SET_B,ret_5,True,True,0.0037821482602118004,,,,causal trailing/as-of feature
+SET_B,vol_20,True,True,0.015128593040847202,,,,causal trailing/as-of feature
+SET_B,dist_min_20,True,True,0.014372163388804841,,,,causal trailing/as-of feature
+SET_B,favourability_percentile_90,True,True,0.0680786686838124,,,,causal trailing/as-of feature
+SET_B,broad_rub_return_1,True,True,0.0007564296520423601,,,,causal trailing/as-of feature
+SET_B,broad_rub_return_3,True,True,0.0022692889561270802,,,,causal trailing/as-of feature
+SET_B,corridor_specific_return_1,True,True,0.0007564296520423601,,,,causal trailing/as-of feature
+SET_B,corridor_specific_return_3,True,True,0.0022692889561270802,,,,causal trailing/as-of feature

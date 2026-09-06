@@ -1,0 +1,9 @@
+check,passed
+all lagged features use shift(+N),True
+no future features,True
+same temporal split,True
+same test origins,True
+validation-only model selection,True
+test locked,True
+purge >= 5,True
+targets only used as y,True

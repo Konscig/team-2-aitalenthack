@@ -1,0 +1,6 @@
+corridor,selected_rule,F,A,R,status,reason,validation_n_signals,validation_median_signals_per_month,validation_share_months_with_2plus,validation_hit_rate,validation_uplift
+AMD_RUB,F=0.900|A=-0.002|R=0.0100,0.9,-0.002,0.01,FREQUENCY_TARGET_NOT_REACHED,No quality-preserving rule reached share_months_with_2plus >= 0.75 and median >= 2,55,2.5,0.5714285714285714,0.4,2.7568922305764416
+KGS_RUB,F=0.850|A=-0.002|R=0.0075,0.85,-0.002,0.0075,FREQUENCY_TARGET_NOT_REACHED,No quality-preserving rule reached share_months_with_2plus >= 0.75 and median >= 2,62,1.5,0.5,0.3709677419354839,2.697419859265051
+KZT_RUB,F=0.750|A=0.002|R=0.0100,0.75,0.002,0.01,FREQUENCY_TARGET_REACHED,Frequency target and quality floor passed on validation,45,3.5,0.7857142857142857,0.37777777777777777,2.194492254733219
+TJS_RUB,F=0.850|A=NONE|R=0.0100,0.85,,0.01,FREQUENCY_TARGET_NOT_REACHED,No quality-preserving rule reached share_months_with_2plus >= 0.75 and median >= 2,86,1.0,0.42857142857142855,0.3953488372093023,3.2237673830594185
+UZS_RUB,F=0.900|A=-0.002|R=0.0030,0.9,-0.002,0.003,FREQUENCY_TARGET_NOT_REACHED,No quality-preserving rule reached share_months_with_2plus >= 0.75 and median >= 2,56,3.5,0.6428571428571429,0.4107142857142857,2.538631346578366

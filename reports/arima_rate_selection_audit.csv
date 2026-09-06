@@ -1,0 +1,16 @@
+corridor,stage,remaining
+AMD_RUB,MAE_H5_1pct,7
+AMD_RUB,Path_MAE_5_1pct,7
+AMD_RUB,MAE_H10_1pct,7
+KGS_RUB,MAE_H5_1pct,13
+KGS_RUB,Path_MAE_5_1pct,13
+KGS_RUB,MAE_H10_1pct,12
+KZT_RUB,MAE_H5_1pct,5
+KZT_RUB,Path_MAE_5_1pct,2
+KZT_RUB,MAE_H10_1pct,2
+TJS_RUB,MAE_H5_1pct,8
+TJS_RUB,Path_MAE_5_1pct,7
+TJS_RUB,MAE_H10_1pct,7
+UZS_RUB,MAE_H5_1pct,5
+UZS_RUB,Path_MAE_5_1pct,5
+UZS_RUB,MAE_H10_1pct,5

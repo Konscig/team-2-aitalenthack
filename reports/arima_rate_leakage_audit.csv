@@ -1,0 +1,14 @@
+check,passed
+no_random_split,True
+history_ends_at_origin,True
+targets_strictly_after_origin,True
+complete_steps_1_to_10,True
+d_selected_before_test,True
+p_q_selected_validation_only,True
+h5_rule_fixed_before_test,True
+same_origins_naive_arima,True
+intervals_model_history_only,True
+future_best_evaluation_only,True
+regret_evaluation_only,True
+arima_endog_is_rate_only,True
+no_forbidden_exog,True

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Интерактивное демо сигналов выгодного момента для трансграничных переводов">
+  <title>Радар выгодного момента — демо</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Радар выгодного момента">
+      <span class="brand-mark">A</span><span>Радар момента</span><small>demo</small>
+    </a>
+    <div class="model-status"><span></span> Golden labels · данные загружены</div>
+    <button class="ghost" id="open-transfer">Открыть форму перевода</button>
+  </header>
+
+  <main class="workspace">
+    <section class="chart-card" aria-labelledby="chart-title">
+      <div class="chart-head">
+        <div>
+          <p class="eyebrow">RUB ЗА ЕДИНИЦУ ВАЛЮТЫ · ЦБ РФ</p>
+          <h1 id="chart-title">Коридоры переводов</h1>
+        </div>
+        <div class="live-pill"><i></i> Историческое демо</div>
+      </div>
+
+      <nav class="corridor-tabs" id="corridor-tabs" aria-label="Коридоры переводов"></nav>
+
+      <div class="ticker-row">
+        <div><strong id="ticker-code">TJS / RUB</strong><span id="ticker-country">Таджикистан</span></div>
+        <div class="ticker-price"><strong id="ticker-rate">—</strong><span id="ticker-change">—</span></div>
+        <div class="range-picker" aria-label="Период графика">
+          <button data-range="90">3М</button><button data-range="183">6М</button><button data-range="365" class="active">1Г</button><button data-range="all">Всё</button>
+        </div>
+      </div>
+
+      <div class="chart-wrap" id="chart-wrap">
+        <canvas id="rate-chart" aria-label="График курса с сигналами"></canvas>
+        <div class="signal-layer" id="signal-layer"></div>
+        <div class="crosshair" id="crosshair" hidden><span></span><i></i></div>
+        <div class="chart-tooltip" id="chart-tooltip" hidden></div>
+      </div>
+
+      <div class="legend">
+        <span><i class="dot good"></i> Выгодный момент</span>
+        <span><i class="dot closing"></i> Окно закрывается</span>
+        <span><i class="dot fact"></i> Позитивный факт</span>
+        <small>Нажмите на любую метку, чтобы отправить push</small>
+      </div>
+    </section>
+
+    <aside class="insights">
+      <section class="signal-detail" id="signal-detail">
+        <div class="empty-detail">
+          <span class="radar-icon">⌁</span>
+          <h2>Выберите сигнал</h2>
+          <p>Нажмите на метку над графиком — здесь появится разбор и сразу прилетит тестовый push.</p>
+        </div>
+      </section>
+
+      <section class="stats-card">
+        <div class="section-label">ПОТОК ПОСЛЕ ФИЛЬТРОВ</div>
+        <div class="big-stat"><strong id="stat-total">—</strong><span>push за период</span></div>
+        <div class="stat-grid">
+          <div><i class="dot good"></i><strong id="stat-good">—</strong><span>выгодный момент</span></div>
+          <div><i class="dot closing"></i><strong id="stat-closing">—</strong><span>окно закрывается</span></div>
+          <div><i class="dot fact"></i><strong id="stat-fact">—</strong><span>позитивный факт</span></div>
+        </div>
+        <div class="policy"><span>Приоритет</span><b>good → closing → fact</b><span>Ограничения</span><b>4 дня · ≤ 2 в неделю</b></div>
+      </section>
+
+      <section class="logic-card">
+        <div class="section-label">ПОЧЕМУ ЭТО НЕ ПРОГНОЗ</div>
+        <p>Метки <b>good</b> и <b>closing</b> — ретроспективная разметка для проверки идеи. В продуктовом контуре модель использует только данные, доступные на дату T.</p>
+      </section>
+    </aside>
+  </main>
+
+  <aside class="transfer-drawer" id="transfer-drawer" aria-hidden="true">
+    <div class="drawer-backdrop" data-close-drawer></div>
+    <section class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="transfer-title">
+      <button class="drawer-close" data-close-drawer aria-label="Закрыть">×</button>
+      <p class="eyebrow">ДЕМО-ФОРМА</p><h2 id="transfer-title">Перевод за рубеж</h2>
+      <form id="transfer-form">
+        <label>Страна<select id="transfer-country"></select></label>
+        <label>Номер телефона получателя<input required minlength="3" placeholder="Тестовые данные"></label>
+        <label>Вы отправляете, ₽<input id="transfer-amount" type="number" min="1" max="1000000" value="22000" required></label>
+        <div class="quote-box"><span>Получит получатель</span><strong id="transfer-receives">—</strong><small id="transfer-rate-label">—</small></div>
+        <label>Счёт списания<select><option>Демо-счёт •• 1234</option><option>Демо-счёт •• 5678</option></select></label>
+        <button class="primary" type="submit">Перевести сейчас</button>
+        <p class="disclaimer">Симуляция: деньги не списываются и не отправляются.</p>
+      </form>
+    </section>
+  </aside>
+
+  <div class="push-stack" id="push-stack" aria-live="polite"></div>
+  <script src="push-messages.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

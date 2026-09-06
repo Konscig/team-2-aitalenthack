@@ -3,3 +3,4 @@
 @media(prefers-reduced-motion:reduce){.slide.active{animation:none}}
 .slide:not(.cover)::before,.slide-no{display:none}.slide-progress{--progress:0;position:absolute;z-index:20;top:4.5%;left:5.2%;right:5.2%;height:1px;background:#777;pointer-events:none}.slide-progress span{position:absolute;left:calc(var(--progress)*100%);top:50%;translate:-50% -50%;width:min(3.4vw,6.05vh);height:min(3.4vw,6.05vh);border:1px solid #777;border-radius:50%;display:grid;place-items:center;background:var(--paper);color:var(--red);font:clamp(12px,min(1.55vw,2.76vh),22px)/1 'Rubik Mono One',sans-serif;transition:left .48s cubic-bezier(.22,.8,.24,1)}
 @media(prefers-reduced-motion:reduce){.slide-progress span{transition:none}}
+.results>.stars{padding-left:12%}

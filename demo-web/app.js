@@ -56,8 +56,28 @@ function chartGeometry(points, width, height, extraRates = []) {
   const low = min - spread * .12, high = max + spread * .14;
   const firstTs = points[0].ts, lastTs = points.at(-1).ts;
   return {
-    width, height, pad, min: low, max: high,
+    width, height, pad, min: low, max: high, domainStart: firstTs, domainEnd: lastTs,
     x: (ts) => pad.left + (ts - firstTs) / Math.max(1, lastTs - firstTs) * (width - pad.left - pad.right),
+    y: (rate) => pad.top + (high - rate) / (high - low) * (height - pad.top - pad.bottom),
+  };
+}
+
+function zoomGeometry(points, predicted, width, height, selectedTs, elapsed) {
+  const base = chartGeometry(points, width, height, predicted.map((point) => point.rate));
+  const day = 86400000;
+  let focusStart = selectedTs - 10 * day, focusEnd = selectedTs + 20 * day;
+  if (focusStart < points[0].ts) { focusEnd += points[0].ts - focusStart; focusStart = points[0].ts; }
+  if (focusEnd > points.at(-1).ts) { focusStart -= focusEnd - points.at(-1).ts; focusEnd = points.at(-1).ts; }
+  const focusPoints = points.filter((point) => point.ts >= focusStart && point.ts <= focusEnd);
+  const focus = chartGeometry(focusPoints, width, height, predicted.map((point) => point.rate));
+  const raw = Math.max(0, Math.min(1, elapsed / 700));
+  const progress = 1 - (1 - raw) ** 3;
+  const mix = (a, b) => a + (b - a) * progress;
+  const domainStart = mix(base.domainStart, focusStart), domainEnd = mix(base.domainEnd, focusEnd);
+  const low = mix(base.min, focus.min), high = mix(base.max, focus.max), { pad } = base;
+  return {
+    width, height, pad, min: low, max: high, domainStart, domainEnd,
+    x: (ts) => pad.left + (ts - domainStart) / Math.max(1, domainEnd - domainStart) * (width - pad.left - pad.right),
     y: (rate) => pad.top + (high - rate) / (high - low) * (height - pad.top - pad.bottom),
   };
 }
@@ -70,7 +90,8 @@ function drawGrid(points, geometry) {
     ctx.strokeStyle = '#252831'; ctx.setLineDash([3, 5]); ctx.beginPath(); ctx.moveTo(pad.left, yy); ctx.lineTo(width - pad.right, yy); ctx.stroke();
     ctx.fillStyle = '#6f7480'; ctx.textAlign = 'left'; ctx.fillText(fmt.format(high - (high - low) * i / 5), width - pad.right + 10, yy + 4);
   }
-  const first = new Date(points[0].ts), last = new Date(points.at(-1).ts);
+  const visible = points.filter((point) => point.ts >= geometry.domainStart && point.ts <= geometry.domainEnd);
+  const first = new Date(geometry.domainStart), last = new Date(geometry.domainEnd);
   const monday = new Date(first); monday.setUTCDate(monday.getUTCDate() + ((8 - monday.getUTCDay()) % 7));
   ctx.setLineDash([]);
   for (const week = new Date(monday); week <= last; week.setUTCDate(week.getUTCDate() + 7)) {
@@ -78,7 +99,7 @@ function drawGrid(points, geometry) {
     ctx.beginPath(); ctx.moveTo(xx, pad.top); ctx.lineTo(xx, height - pad.bottom); ctx.stroke();
   }
   for (let i = 0; i <= 5; i += 1) {
-    const point = points[Math.round((points.length - 1) * i / 5)], xx = x(point.ts);
+    const point = visible[Math.round((visible.length - 1) * i / 5)], xx = x(point.ts);
     ctx.fillStyle = '#656a75'; ctx.textAlign = i === 0 ? 'left' : i === 5 ? 'right' : 'center';
     ctx.fillText(new Intl.DateTimeFormat('ru-RU', { month: 'short', year: '2-digit' }).format(point.ts), xx, height - 13);
   }
@@ -121,15 +142,18 @@ function drawPredictionChart(now = performance.now()) {
   const replay = selectedReplay();
   const predicted = replay ? replay.predicted.map(([date, rate]) => ({ date, rate, ts: Date.parse(date) })) : [];
   const { width, height } = resizeCanvas();
-  const geometry = chartGeometry(points, width, height, predicted.map((point) => point.rate));
+  const elapsed = replay ? now - state.replayStartedAt : 0;
+  const geometry = replay
+    ? zoomGeometry(points, predicted, width, height, Date.parse(replay.date), elapsed)
+    : chartGeometry(points, width, height);
   state.geometry = geometry; state.points = points;
-  drawGrid(points, geometry); drawLine(points, geometry, '#ff5a51', 1.8); drawLastPrice(points.at(-1), geometry, '#f13c32');
+  drawGrid(points, geometry); drawLine(points, geometry, '#ff5a51', 1.8);
+  if (!replay) drawLastPrice(points.at(-1), geometry, '#f13c32');
 
   if (!replay) {
     state.signals = []; renderMarkers(true); updatePredictionPrompt(); return;
   }
 
-  const elapsed = now - state.replayStartedAt;
   const selectedTs = Date.parse(replay.date), endTs = predicted.at(-1).ts;
   const selectedX = geometry.x(selectedTs), endX = geometry.x(endTs);
   ctx.fillStyle = '#a98cff0e'; ctx.fillRect(selectedX, geometry.pad.top, Math.max(3, endX - selectedX), height - geometry.pad.top - geometry.pad.bottom);
@@ -137,8 +161,8 @@ function drawPredictionChart(now = performance.now()) {
   ctx.fillStyle = '#e7e8ec'; ctx.font = '700 11px Inter, sans-serif'; ctx.fillText('ВЫБРАННЫЙ ДЕНЬ', selectedX + 8, geometry.pad.top + 15);
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(selectedX, geometry.y(predicted[0].rate), 5, 0, Math.PI * 2); ctx.fill();
 
-  drawLine(predicted, geometry, '#a98cff', 3, true, (elapsed - 300) / 1000);
-  const predictedVisible = elapsed >= 1450, goldenVisible = elapsed >= 2250, decisionVisible = elapsed >= 3050;
+  drawLine(predicted, geometry, '#a98cff', 3, true, (elapsed - 800) / 1000);
+  const predictedVisible = elapsed >= 1950, goldenVisible = elapsed >= 2700, decisionVisible = elapsed >= 3500;
   state.signals = [
     ...(predictedVisible ? replay.predictedSignals : []),
     ...(goldenVisible ? replay.goldenSignals : []),
@@ -152,7 +176,7 @@ function drawPredictionChart(now = performance.now()) {
   if (decisionVisible && replay.push.sent && !state.replayPushSent) {
     state.replayPushSent = true; sendPush(replay.todaySignal);
   }
-  if (elapsed < 3500) state.replayFrame = requestAnimationFrame(drawPredictionChart);
+  if (elapsed < 3900) state.replayFrame = requestAnimationFrame(drawPredictionChart);
 }
 
 function renderMarkers(replayMode = false) {
@@ -173,10 +197,11 @@ function updatePredictionPrompt() {
 function updatePredictionDetail(replay, elapsed) {
   const c = replay.comparison;
   let stage = 'Строим TimesFM-прогноз от выбранного дня';
-  if (elapsed >= 1450) stage = 'Расставляем predicted-сигналы';
-  if (elapsed >= 2250) stage = 'Показываем golden-сигналы по факту';
-  if (elapsed >= 3050) stage = replay.push.sent ? 'Push отправлен' : 'Push не отправлен';
-  const verdict = elapsed < 3050
+  if (elapsed < 700) stage = 'Приближаем 30-дневное окно';
+  if (elapsed >= 1950) stage = 'Расставляем predicted-сигналы';
+  if (elapsed >= 2700) stage = 'Показываем golden-сигналы по факту';
+  if (elapsed >= 3500) stage = replay.push.sent ? 'Push отправлен' : 'Push не отправлен';
+  const verdict = elapsed < 3500
     ? '<div class="push-verdict pending"><b>Push-политика</b><span>Проверяем сигнал в выбранной точке…</span></div>'
     : `<div class="push-verdict ${replay.push.sent ? 'sent' : 'suppressed'}"><b>${replay.push.sent ? '✓ Отправлен' : '× Не отправлен'}</b><span>${replay.push.explanation}</span></div>`;
   $('#signal-detail').innerHTML = `
@@ -199,23 +224,21 @@ function updatePredictionDetail(replay, elapsed) {
 function selectPredictionDate(clientX) {
   const rect = chartWrap.getBoundingClientRect();
   const ratio = Math.max(0, Math.min(1, (clientX - rect.left - state.geometry.pad.left) / (state.geometry.width - state.geometry.pad.left - state.geometry.pad.right)));
-  const targetTs = state.points[0].ts + ratio * (state.points.at(-1).ts - state.points[0].ts);
+  const targetTs = state.geometry.domainStart + ratio * (state.geometry.domainEnd - state.geometry.domainStart);
   const available = Object.keys(predictionSource().replays);
   state.selectedDate = available.reduce((best, date) => Math.abs(Date.parse(date) - targetTs) < Math.abs(Date.parse(best) - targetTs) ? date : best, available[0]);
   $('#push-stack').innerHTML = '';
   cancelAnimationFrame(state.replayFrame); state.replayPushSent = false; state.replayStartedAt = performance.now();
-  $('#mode-hint span').textContent = `${dateFmt.format(Date.parse(state.selectedDate))} · строим прогноз`;
+  $('#mode-hint span').textContent = `${dateFmt.format(Date.parse(state.selectedDate))} · окно 30 дней · прогноз H1–H5`;
   drawPredictionChart(state.replayStartedAt);
 }
 
 function setMode(mode) {
   state.mode = mode; state.selectedDate = null; state.replayPushSent = false; cancelAnimationFrame(state.replayFrame);
-  $('#history-mode').classList.toggle('active', mode === 'history'); $('#prediction-mode').classList.toggle('active', mode === 'prediction');
-  $('#history-mode').setAttribute('aria-pressed', mode === 'history'); $('#prediction-mode').setAttribute('aria-pressed', mode === 'prediction');
   document.body.classList.toggle('prediction-mode', mode === 'prediction');
   if (mode === 'prediction') {
     $('#mode-hint span').textContent = 'Нажмите на день, чтобы построить прогноз';
-    $('#chart-legend').innerHTML = '<span><i class="line-key golden"></i> Фактический курс</span><span><i class="line-key predicted"></i> TimesFM-прогноз</span><span><i class="dot candidate"></i> predicted</span><span><i class="dot good"></i> golden</span><small>Сначала выберите день на графике</small>';
+    $('#chart-legend').innerHTML = '<span><i class="line-key golden"></i> Фактический курс</span><span><i class="line-key predicted"></i> TimesFM H1–H5</span><span><i class="dot candidate"></i> predicted</span><span><i class="dot good"></i> golden</span><small>Сначала выберите день на графике</small>';
     $('.logic-card').innerHTML = '<div class="section-label">ЛОГИКА РЕЖИМА</div><p>Вы выбираете дату T. Модель видит только прошлое, а затем мы накладываем её прогноз и сигналы на уже известный фактический ряд.</p>';
     drawPredictionChart();
   } else {
@@ -287,7 +310,6 @@ function updateTransfer() {
 
 $('#corridor-tabs').addEventListener('click', (event) => { const button = event.target.closest('[data-corridor]'); if (button) selectCorridor(button.dataset.corridor); });
 $('.range-picker').addEventListener('click', (event) => { const button = event.target.closest('[data-range]'); if (!button || state.mode !== 'history') return; state.range = button.dataset.range; document.querySelectorAll('[data-range]').forEach((item) => item.classList.toggle('active', item === button)); drawHistoryChart(); });
-$('#history-mode').addEventListener('click', () => setMode('history')); $('#prediction-mode').addEventListener('click', () => setMode('prediction'));
 $('#signal-layer').addEventListener('click', (event) => { const button = event.target.closest('[data-signal]'); if (button) { event.stopPropagation(); showSignal(state.signals[Number(button.dataset.signal)]); } });
 chartWrap.addEventListener('click', (event) => { if (state.mode === 'prediction' && !event.target.closest('[data-signal]')) selectPredictionDate(event.clientX); });
 chartWrap.addEventListener('mousemove', moveCrosshair); chartWrap.addEventListener('mouseleave', () => { $('#crosshair').hidden = true; $('#chart-tooltip').hidden = true; });

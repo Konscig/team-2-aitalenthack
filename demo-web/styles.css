@@ -115,6 +115,8 @@ h1 { margin: 0; font-size: clamp(24px, 2.3vw, 34px); letter-spacing: -.045em; }
 .push-verdict.sent { border-color: #38d58b55; background: #11271d; }.push-verdict.sent b { color: var(--green); }
 .push-verdict.suppressed { border-color: #f13c3255; background: #281517; }.push-verdict.suppressed b { color: #ff756f; }
 .push-verdict.pending b { color: #c9b8ff; }
+.zoom-out { width: 100%; margin: -3px 0 13px; padding: 9px 12px; border: 1px solid #454956; border-radius: 10px; background: #22252d; color: #e7e8ec; font-size: 12px; font-weight: 760; }
+.zoom-out:hover { border-color: #6b7180; background: #2a2e37; }
 .metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .metric { padding: 11px; border-radius: 11px; background: #1b1e25; }
 .metric span, .metric strong { display: block; }

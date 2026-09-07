@@ -204,10 +204,11 @@ function updatePredictionDetail(replay, elapsed) {
   const verdict = elapsed < 3500
     ? '<div class="push-verdict pending"><b>Push-политика</b><span>Проверяем сигнал в выбранной точке…</span></div>'
     : `<div class="push-verdict ${replay.push.sent ? 'sent' : 'suppressed'}"><b>${replay.push.sent ? '✓ Отправлен' : '× Не отправлен'}</b><span>${replay.push.explanation}</span></div>`;
+  const zoomButton = elapsed >= 3500 ? '<button class="zoom-out" data-zoom-out>− Отдалить</button>' : '';
   $('#signal-detail').innerHTML = `
     <div class="detail-head"><span class="badge replay-badge">TIMESFM</span><time>${dateFmt.format(Date.parse(replay.date))}</time></div>
     <h2 class="detail-title">${stage}</h2><p class="detail-reason">Пунктир — прогноз, красная линия — то, что произошло на самом деле.</p>
-    ${verdict}
+    ${verdict}${zoomButton}
     <div class="metric-row">
       <div class="metric"><span>Среднее H1…H5</span><strong>${c.meanChangeH5Bps >= 0 ? '+' : ''}${c.meanChangeH5Bps.toFixed(1)} bps</strong></div>
       <div class="metric"><span>Дней хуже</span><strong>${c.worseDaysH5} из 5</strong></div>
@@ -219,6 +220,13 @@ function updatePredictionDetail(replay, elapsed) {
   $('#stat-good').textContent = predicted.filter((signal) => signal.type === 'good_now').length;
   $('#stat-closing').textContent = predicted.filter((signal) => signal.type === 'window_closing').length;
   $('#stat-fact').textContent = predicted.filter((signal) => signal.type === 'positive_market_fact').length;
+}
+
+function resetPredictionZoom() {
+  cancelAnimationFrame(state.replayFrame);
+  state.selectedDate = null; state.replayPushSent = false; $('#push-stack').innerHTML = '';
+  $('#mode-hint span').textContent = 'Нажмите на день, чтобы построить прогноз';
+  drawPredictionChart();
 }
 
 function selectPredictionDate(clientX) {
@@ -311,6 +319,7 @@ function updateTransfer() {
 $('#corridor-tabs').addEventListener('click', (event) => { const button = event.target.closest('[data-corridor]'); if (button) selectCorridor(button.dataset.corridor); });
 $('.range-picker').addEventListener('click', (event) => { const button = event.target.closest('[data-range]'); if (!button || state.mode !== 'history') return; state.range = button.dataset.range; document.querySelectorAll('[data-range]').forEach((item) => item.classList.toggle('active', item === button)); drawHistoryChart(); });
 $('#signal-layer').addEventListener('click', (event) => { const button = event.target.closest('[data-signal]'); if (button) { event.stopPropagation(); showSignal(state.signals[Number(button.dataset.signal)]); } });
+$('#signal-detail').addEventListener('click', (event) => { if (event.target.closest('[data-zoom-out]')) resetPredictionZoom(); });
 chartWrap.addEventListener('click', (event) => { if (state.mode === 'prediction' && !event.target.closest('[data-signal]')) selectPredictionDate(event.clientX); });
 chartWrap.addEventListener('mousemove', moveCrosshair); chartWrap.addEventListener('mouseleave', () => { $('#crosshair').hidden = true; $('#chart-tooltip').hidden = true; });
 $('#open-transfer').addEventListener('click', () => openDrawer()); document.querySelectorAll('[data-close-drawer]').forEach((item) => item.addEventListener('click', closeDrawer));

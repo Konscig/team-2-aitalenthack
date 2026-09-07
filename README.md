@@ -44,22 +44,39 @@ python3 -m http.server 8080 --directory demo-web
 
 ## 1. Идея и схема работы
 
-Решение объединяет два контура, показанные в [презентации проекта](https://docs.google.com/presentation/d/1-mTwJ8UT4rphNEHI6DCbz6XaSxrGJv16InTri9Oja0c/edit):
+Golden methodology ретроспективно определяет правильные даты для `GOOD_DAY` и `WINDOW_CLOSING` и используется для обучения и оценки на истории. Golden labels и вычисленные по будущим курсам поля не передаются в runtime-признаки. На дату `T` система использует только рыночные данные и причинные признаки, доступные не позже `T`.
 
-1. `Golden rules` ретроспективно определяют, как выглядит хороший момент. Эти правила используют фактический курс до и после даты и нужны для разметки истории и оценки качества, но не для принятия решения в runtime.
-2. `Time-series prediction` использует только информацию, доступную на текущую дату, и оценивает траекторию курса на ближайшем горизонте.
-3. Сигнальный слой объединяет историческую привлекательность текущего курса и прогнозный риск того, что в ближайшие дни появится существенно лучший момент.
-4. Коммуникационный слой проверяет свежесть данных, пороги качества, cooldown и клиентские ограничения. Если проверки не пройдены, сообщение не отправляется.
+Из этих данных формируются три типа кандидатов:
 
-В ноутбуках проверены Naive, ARIMA, ARIMAX, direct Ridge/Gradient Boosting и CatBoost. Наиболее практичным прогнозным референсом оказался direct multi-horizon подход: отдельная модель для каждого коридора и горизонта H1–H5. Он превзошёл Naive по H5 в четырёх из пяти коридоров, но выигрыш оказался небольшим. Поэтому прогноз курса используется как один из признаков решения, а не как обещание будущего курса.
+- `GOOD_DAY` — текущий курс находится в благоприятной зоне по существующей signal logic;
+- `WINDOW_CLOSING` — благоприятное окно может начать закрываться; в выбранном time-series варианте решение использует прогнозную информацию TimesFM;
+- `POSITIVE_MARKET_FACT` — наблюдаемый factual-сигнал из golden methodology, вычисляемый только по текущей и прошлой динамике рынка.
+
+Если на одну дату приходится несколько кандидатов, действует приоритет `GOOD_DAY > WINDOW_CLOSING > POSITIVE_MARKET_FACT`. Затем communication policy применяет четырёхдневный cooldown, подавление повторов и лимит не более двух push на ISO-неделю для каждого коридора. Низкоприоритетный factual push не блокирует следующий более сильный `GOOD_DAY` или `WINDOW_CLOSING`. Исследованный adaptive ranking в зафиксированной финальной конфигурации отключён (`none`), поэтому на runtime-решение не влияет. После всех проверок остаётся не более одного final push на пару `corridor × date`; если кандидат не прошёл policy, сообщение не отправляется.
+
+```text
+Market data
+→ causal data available at T
+→ signal candidates
+  ├─ GOOD_DAY
+  ├─ WINDOW_CLOSING / TimesFM
+  └─ POSITIVE_MARKET_FACT
+→ priority
+→ cooldown / frequency policy
+→ final push или no push
+```
+
+В ходе исследования были проверены Naive, ARIMA, ARIMAX, direct Ridge/Gradient Boosting, CatBoost, Chronos, TimesFM и direct classification классическим ML. Для финального прототипа выбран time-series подход, соответствующий продуктовой гипотезе о прогнозном `WINDOW_CLOSING`; classic ML сохранён как альтернативный эксперимент и baseline.
 
 Основные исследования:
 
 - [сводка экспериментов](EXPERIMENTS_SUMMARY.md);
-- [direct multi-horizon forecasting](notebooks/03_direct_multihorizon_forecasting.ipynb);
-- [признаки хорошего дня](notebooks/06_good_day_features.ipynb);
-- [правила по отдельным коридорам](notebooks/08_per_corridor_good_day_rules.ipynb);
-- [адаптивная сигнальная политика](notebooks/14_conservative_adaptive_selection.ipynb).
+- [методология golden labels](docs/golden_label_methodology.md);
+- [методология оценки сигналов](docs/metrics_methodology.md);
+- [сравнение моделей для `WINDOW_CLOSING`](notebooks/24_window_closing_forecasting_comparison.ipynb);
+- [TimesFM и финальная three-type policy](notebooks/25_three_type_push_policy_timesfm.ipynb);
+- [direct classification классическим ML](notebooks/28_direct_signal_classification.ipynb);
+- [альтернативная three-type ML policy](notebooks/29_final_three_type_ml_push_policy.ipynb).
 
 ## 2. Proof of concept: разметка исторических данных
 

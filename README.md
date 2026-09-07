@@ -7,18 +7,40 @@
 
 ## 0. Запуск
 
-Автономный прототип находится в `app.py`. Он воспроизводит путь «Платежи → перевод за рубеж → страна → способ → реквизиты» и не выполняет реальные платежи.
+### Требования
+
+- Git;
+- Python с модулем стандартной библиотеки `http.server`.
+
+Статический прототип находится в `demo-web/`. Для обычного запуска не нужны backend, Node.js, GPU, установка зависимостей или повторное выполнение исследовательских notebooks. Прототип не выполняет реальные платежи.
+
+### Установка
 
 ```bash
-python -m pip install -r requirements.txt
-python -m uvicorn app:app --reload
+git clone https://github.com/Konscig/team-2-aitalenthack.git
+cd team-2-aitalenthack
 ```
 
-- Прототип: `http://127.0.0.1:8000`
-- Swagger: `http://127.0.0.1:8000/docs`
-- В правой панели доступны три сценария: сильный актуальный сигнал, устаревший сигнал и отсутствие сигнала.
+### Подготовка данных и моделей
 
-Только сильный актуальный сценарий создаёт push. Ссылка из него передаёт страну и открывает стандартный экран выбора способа перевода. После ввода суммы рядом с демонстрационным курсом появляется фактическая подсказка. В остальных сценариях продукт молчит и не предлагает клиенту ждать.
+Готовые данные интерфейса уже сохранены в `demo-web/data.js`. В репозитории также находятся frozen-модели classic ML, результаты notebooks 25 и 28–29, `reports/final_push_policy_2026.csv`, нормализованные данные и golden labels. Для просмотра demo ничего пересчитывать не требуется.
+
+### Запуск frontend / demo
+
+Из корня репозитория выполните:
+
+```bash
+python3 -m http.server 8080 --directory demo-web
+```
+
+- основной интерфейс: `http://localhost:8080`;
+- пошаговая демонстрация алгоритма: `http://localhost:8080/algorithm.html`.
+
+### Проверка
+
+1. Откройте `http://localhost:8080` и выберите валютный коридор и период графика.
+2. Запустите воспроизведение прогноза и убедитесь, что на графике отображаются курс, сигналы и push-события.
+3. Откройте `http://localhost:8080/algorithm.html`, чтобы проверить пошаговую визуализацию алгоритма.
 
 ## 1. Идея и схема работы
 
@@ -65,43 +87,55 @@ good = rate_T <= min_rate × (1 + 100 / 10 000)
 
 Полная методология и команды воспроизведения: [docs/golden_label_methodology.md](docs/golden_label_methodology.md).
 
-## 3. Модель и формирование сигнала в runtime
+## 3. Метрики и финальный сигнальный контур
 
-Целевой runtime-контур состоит из следующих этапов:
+Финальная схема time-series прототипа:
 
-1. Загрузить свежую котировку и привести её к единой семантике RUB за единицу валюты получателя.
-2. Рассчитать только причинные признаки на дату `T`: доходности и momentum, волатильность, положение относительно прошлых минимумов и максимумов, скользящий percentile и межвалютный контекст.
-3. Построить direct multi-horizon прогноз для конкретного валютного коридора. Отдельные модели оценивают курс на H1–H5 обновлений; из прогнозного пути рассчитываются ожидаемый лучший курс и `predicted regret` текущего решения.
-4. Применить правило коридора. Оно объединяет историческую привлекательность, преимущество относительно недавнего курса и ограничение прогнозного regret. Единые пороги для всех валют были отклонены как нестабильные.
-5. Применить коммуникационную политику: абсолютный порог качества, cooldown, отсутствие повторов, свежесть котировки и доступность исполнимого банковского курса.
-6. Отправить нейтральный сигнал только после прохождения всех проверок. Иначе система не вмешивается в обычный перевод.
-
-На locked test правила, настроенные отдельно по коридорам, дали uplift не ниже 1,3 во всех пяти коридорах, средний uplift — 3,93.
-
-Метрики сигнальных сценариев:
-
-| Сценарий | Uplift | Hit Rate | F0,5 | Precision |
-| --- | ---: | ---: | ---: | ---: |
-| `good` | Не рассчитано | Не рассчитано | Не рассчитано | Не рассчитано |
-| `closing` | Не рассчитано | Не рассчитано | Не рассчитано | Не рассчитано |
-| `positive_market_fact` | Не рассчитано | Не рассчитано | Не рассчитано | Не рассчитано |
-
-Значения должны рассчитываться на едином out-of-time периоде после фиксации правил каждого сценария. Средний uplift 3,93 выше относится к отдельному эксперименту с per-corridor good-day rules и поэтому не перенесён в таблицу.
-
-Полное описание происхождения, слоёв, размеров, semantics, проверок и ограничений приведено в [`docs/dataset_card.md`](docs/dataset_card.md).
-
-### Оценка алгоритмов сигналов
-
-Модель должна вернуть по каждой дате и коридору `good_pred` и `closing_pred`; probability/score и factual-кандидат необязательны. Один вызов применяет коммуникационную политику и считает classification, safety hit, экономическую выгоду, policy-matched random, частоту и кучность сразу для всех коридоров и `h = 1/3/5/10/20`:
-
-```python
-from src.backtest.metrics import evaluate_predictions
-
-result = evaluate_predictions(predictions, golden_labels, calendar)
-result.save("reports/evaluation/my_model")
+```text
+market data → causal features → signal candidates → TimesFM / signal logic
+→ GOOD_DAY / WINDOW_CLOSING + factual POSITIVE_MARKET_FACT
+→ priority → cooldown → final push
 ```
 
-Полный контракт таблиц, формулы и команды oracle/random sanity-check описаны в [`docs/metrics_methodology.md`](docs/metrics_methodology.md).
+При конфликте действует приоритет `GOOD_DAY > WINDOW_CLOSING > POSITIVE_MARKET_FACT`. Затем применяются cooldown четыре календарных дня и лимит два push на ISO-неделю для коридора. Все значения ниже получены на locked TEST 2026 после фиксации моделей, правил и порогов. В используемой push-vs-golden агрегации `Hit Rate` численно равен `Precision`, а `Uplift` сравнивает hit rate с сохранённым random baseline.
+
+### Time-series forecasting — notebook 25
+
+В [notebook 25](notebooks/25_three_type_push_policy_timesfm.ipynb) `GOOD_DAY` определяется существующей signal logic, `WINDOW_CLOSING` использует прогноз TimesFM, а `POSITIVE_MARKET_FACT` — только факты, доступные на дату `T`. После формирования кандидатов применяется единая коммуникационная policy.
+
+| Signal | Precision | Recall | F0.5 | Hit Rate | Uplift |
+|---|---:|---:|---:|---:|---:|
+| `good_day` | 0.6053 | 0.3399 | 0.5235 | 0.6053 | 2.4722 |
+| `window_closing` | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 |
+| `positive_market_fact` | 1.0000 | 0.0641 | 0.2550 | 1.0000 | 2.9796 |
+
+- total pushes: **134**;
+- combined precision: **0.6493**;
+- mean / median pushes на corridor-month: **3.35 / 3.00**;
+- доля corridor-months с не менее чем тремя push: **0.825**.
+
+### Classic ML — notebooks 28–29
+
+В [notebook 28](notebooks/28_direct_signal_classification.ipynb) `GOOD_DAY` и `WINDOW_CLOSING` предсказываются напрямую CatBoost-классификаторами по causal-признакам на дату `T`. Golden labels используются только как targets и для ретроспективной оценки; future-derived поля не являются online-признаками. В [notebook 29](notebooks/29_final_three_type_ml_push_policy.ipynb) frozen ML predictions объединяются с тем же factual `POSITIVE_MARKET_FACT`, после чего применяются приоритет и коммуникационная policy.
+
+| Signal | Precision | Recall | F0.5 | Hit Rate | Uplift |
+|---|---:|---:|---:|---:|---:|
+| `good_day` | 0.4255 | 0.0985 | 0.2558 | 0.4255 | 1.7608 |
+| `window_closing` | 0.1429 | 0.0192 | 0.0625 | 0.1429 | 2.3077 |
+| `positive_market_fact` | 1.0000 | 0.2349 | 0.6055 | 1.0000 | 2.9893 |
+
+- total pushes: **120**;
+- доля final push, совпавших с соответствующим golden-сценарием: **0.7250**;
+- mean / median pushes на corridor-month: **3.00 / 3.00**;
+- доля corridor-months с не менее чем тремя push: **0.625**.
+
+Для `POSITIVE_MARKET_FACT` эта таблица показывает описательное покрытие factual events по той же push-vs-golden формуле, что и notebook 25. Это не метрика качества ML-модели: factual-сигнал детерминирован и не предсказывает label. Канонические определения classification, safety, economic benefit и policy-matched random приведены в [`docs/metrics_methodology.md`](docs/metrics_methodology.md).
+
+### Выбранный подход
+
+В ходе экспериментов проверены два способа формирования сигналов: time-series forecasting и direct classification классическим ML. Для финального прототипа выбран time-series контур: он лучше соответствует исходной продуктовой гипотезе, где `WINDOW_CLOSING` формируется на основании прогноза дальнейшей динамики курса. Classic ML сохранён как исследовательский baseline.
+
+На locked TEST time-series вариант дал более высокие `GOOD_DAY` precision и F0.5, а также большую долю corridor-months с не менее чем тремя push. При этом качество `WINDOW_CLOSING` остаётся ограничением обоих подходов: TimesFM-вариант отправил два сигнала без true positive, а classic ML — семь сигналов с одним true positive. Эти результаты недостаточны, чтобы заявлять о надёжном распознавании закрывающегося окна.
 
 ## 4. Основная продуктовая проработка
 
